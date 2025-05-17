@@ -18,8 +18,8 @@ const eslintConfig = [
     "next/core-web-vitals",
     "next/typescript",
     "standard",
-    "prettier"
-    // "plugin:tailwindcss/recommended"
+    "prettier",
+    "plugin:tailwindcss/recommended"
   ),
   {
     rules: {
