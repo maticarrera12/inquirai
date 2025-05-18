@@ -1,5 +1,5 @@
-import { auth, signOut } from "@/auth";
-import { Button } from "@/components/ui/button";
+import { auth} from "@/auth";
+
 import ROUTES from "@/constants/routes";
 
 
@@ -9,13 +9,6 @@ const Home = async () => {
   return (
     <div>
       <h1 className="h1-bold font-space-grotesk">Tailwind CSS is FUN!!</h1>
-    
-    <form className="px-10 pt-[100px]" action={async () => {
-      "use server";
-      await signOut({redirectTo: ROUTES.SIGN_IN})
-    }}>
-      <Button type="submit">Log Out</Button>
-    </form>
     </div>
   );
 };
