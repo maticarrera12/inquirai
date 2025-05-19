@@ -36,7 +36,7 @@ const MobileNavigation = () => {
             height={23}
           />
           <p className="h2-bold font-space-grotesk text-dark-100 dark:text-light-900">
-            Inquir<span className="text-primary-500">IA</span>
+            Inquir<span className="text-primary-500">AI</span>
           </p>
         </Link>
 

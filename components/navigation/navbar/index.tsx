@@ -17,7 +17,7 @@ const Navbar = () => {
           alt='InquirAI Logo'
           />
 
-          <p className='h2-bold font-space-grotesk text-dark-100 dark:text-light-900 max-sm:hidden'>Inquir<span className='text-primary-500'>IA</span></p>
+          <p className='h2-bold font-space-grotesk text-dark-100 dark:text-light-900 max-sm:hidden'>Inquir<span className='text-primary-500'>AI</span></p>
         </Link>
 
         <p>Global Search</p>
