@@ -50,3 +50,24 @@ export const SignUpSchema = z.object({
       message: "La contraseña debe contener al menos un carácter especial.",
     }),
 });
+
+export const AskQuestionSchema = z.object({
+  title: z
+  .string()
+  .min(5, {message: 'El titulo es requerido'})
+  .max(100, {message: "El titulo no puede exceder los 100 caracterres"}),
+
+  content: z
+  .string()
+  .min(1, {message: "La descripcion es necesaria"}),
+
+  tags: z.
+  array(
+    z.
+    string()
+    .min(1, {message: "Tag es requerido"})
+    .max(30,{message: "Tag no puede exceder los 30 caracteres"})
+  )
+  .min(1,{message: "Al menos un tag es necesario"})
+  .max(5, {message:"No se pueden agregar mas de 5 tags."})
+})
