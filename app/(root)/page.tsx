@@ -9,7 +9,7 @@ import Link from "next/link";
     {_id: "1", title: "Como aprender react?", description:"Quiero aprender React, alguien puede ayudarme en donde empezar?", tags:[
       {_id:'1', name:"React"},
     ],
-  author:{_id:"1", name: "John Doe"},
+  author:{_id:"1", name: "John Doe", image: "https://img.freepik.com/premium-vector/male-face-avatar-icon-set-flat-design-social-media-profiles_1281173-3806.jpg?semt=ais_hybrid&w=740"},
   upvotes: 10,
   answers: 5,
   views: 100,
@@ -18,7 +18,7 @@ import Link from "next/link";
     {_id: "2", title: "Como aprender Javascript?", description:"Quiero aprender React, alguien puede ayudarme en donde empezar?", tags:[
       {_id:'2', name:"Javascript"},
     ],
-  author:{_id:"1", name: "John Doe"},
+  author:{_id:"1", name: "Jane Doe", image: "https://img.freepik.com/premium-vector/male-face-avatar-icon-set-flat-design-social-media-profiles_1281173-3806.jpg?semt=ais_hybrid&w=740"},
   upvotes: 10,
   answers: 5,
   views: 100,
