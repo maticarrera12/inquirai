@@ -1,3 +1,5 @@
+import QuestionCard from "@/components/cards/QuestionCard";
+import HomeFilter from "@/components/filters/HomeFilter";
 import LocalSearch from "@/components/search/LocalSearch";
 import { Button } from "@/components/ui/button";
 import ROUTES from "@/constants/routes";
@@ -6,7 +8,6 @@ import Link from "next/link";
   const questions = [
     {_id: "1", title: "Como aprender react?", description:"Quiero aprender React, alguien puede ayudarme en donde empezar?", tags:[
       {_id:'1', name:"React"},
-      {_id:'2', name:"Javascript"},
     ],
   author:{_id:"1", name: "John Doe"},
   upvotes: 10,
@@ -15,7 +16,6 @@ import Link from "next/link";
   createdAt: new Date()
 },
     {_id: "2", title: "Como aprender Javascript?", description:"Quiero aprender React, alguien puede ayudarme en donde empezar?", tags:[
-      {_id:'1', name:"React"},
       {_id:'2', name:"Javascript"},
     ],
   author:{_id:"1", name: "John Doe"},
@@ -32,9 +32,16 @@ import Link from "next/link";
   }
 const Home = async ({searchParams}: SearchParams) => {
 
-  const {query = ""} = await searchParams
+  const {query = "", filter = ""} = await searchParams
 
-  const filteredQuestions = questions.filter((question)=> question.title.toLowerCase().includes(query?.toLowerCase()))
+  const filteredQuestions = questions.filter((question)=> {
+    const matchesQuery =  question.title
+  .toLowerCase()
+  .includes(query?.toLowerCase())
+    const matchesFilter = filter ? question.tags[0].name.toLowerCase() === filter.toLowerCase() : true;
+
+    return matchesQuery && matchesFilter
+})
 
   return (
     <>
@@ -54,11 +61,11 @@ const Home = async ({searchParams}: SearchParams) => {
         placeholder='Encuentra preguntas' 
         otherClasses="flex-1"/>
       </section>
-
+      <HomeFilter/>
       <div className="mt-10 flex w-full flex-col gap-6">
       {
         filteredQuestions.map((question)=>(
-          <h1 key={question._id}>{question.title}</h1>
+          <QuestionCard key={question._id} question={question}/>
         ))
       }
       </div>

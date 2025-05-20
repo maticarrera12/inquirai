@@ -6,7 +6,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { SessionProvider } from "next-auth/react";
 import { auth } from "@/auth";
 import { ReactNode } from "react";
-
+import { NuqsAdapter } from 'nuqs/adapters/next/app'
 const inter = localFont({
   src: "./fonts/InterVF.ttf",
   variable: "--font-inter",
@@ -46,7 +46,7 @@ const RootLayout = async ({ children }: { children: ReactNode }) => {
             enableSystem
             disableTransitionOnChange
           >
-            {children}
+           <NuqsAdapter>{children}</NuqsAdapter>
           </ThemeProvider>
           <Toaster />
         </body>
