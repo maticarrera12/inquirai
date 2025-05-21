@@ -38,7 +38,7 @@ export const getTimeStamp = (date: Date): string => {
     }
   }
 
-  return "1 segundo";
+  return "recien";
 };
 
 
