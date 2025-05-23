@@ -9,7 +9,7 @@ export const SignInSchema = z.object({
 
   password: z
   .string()
-  .min(6, {message: "La contraseña debe tener al menos 6 caracteres"})
+  .min(8, {message: "La contraseña debe tener al menos 8 caracteres"})
   .max(30, {message: "La contraseña no puede tener más de 30 caracteres"})
 })
 
@@ -37,7 +37,7 @@ export const SignUpSchema = z.object({
 
   password: z
     .string()
-    .min(6, { message: "La contraseña debe tener al menos 6 caracteres." })
+    .min(8, { message: "La contraseña debe tener al menos 8 caracteres." })
     .max(100, { message: "La contraseña no puede tener más de 100 caracteres." })
     .regex(/[A-Z]/, {
       message: "La contraseña debe contener al menos una letra mayúscula.",
@@ -94,7 +94,7 @@ export const AccountSchema = z.object({
   image: z.string().url({ message: "Por favor, proporciona una URL válida." }).optional(),
   password: z
     .string()
-    .min(6, { message: "La contraseña debe tener al menos 6 caracteres." })
+    .min(8, { message: "La contraseña debe tener al menos 8 caracteres." })
     .max(100, { message: "La contraseña no puede exceder los 100 caracteres." })
     .regex(/[A-Z]/, {
       message: "La contraseña debe contener al menos una letra mayúscula.",
