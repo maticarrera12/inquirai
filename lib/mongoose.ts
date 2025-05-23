@@ -1,4 +1,5 @@
 import mongoose, {Mongoose} from 'mongoose'
+import logger from './logger';
 
 const MONGODB_URI = process.env.MONGODB_URI as string
 
@@ -23,6 +24,7 @@ if(!cached){
 
 const dbConnect = async () : Promise<Mongoose> =>{
     if(cached.conn){
+        logger.info('Using existing Mongoose connection')
         return cached.conn
     }
 
@@ -31,11 +33,11 @@ const dbConnect = async () : Promise<Mongoose> =>{
             dbName:'InquirAi'
         })
         .then((result)=>{
-            console.log("Conectado a MongoDB")
+            logger.info('Connected to MongoDB')
             return result
         })
         .catch((error)=>{
-            console.log("Error conectando a MongoDB", error)
+            logger.error("Error conectando a MongoDB", error)
             throw error
         })
     }
