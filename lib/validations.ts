@@ -87,3 +87,28 @@ export const UserSchema = z.object({
     .optional(),
   reputation: z.number().optional(),
 });
+
+export const AccountSchema = z.object({
+  userId: z.string().min(1, { message: "El UserId es requerido." }),
+  name: z.string().min(1, { message: "El nombre es requerido." }),
+  image: z.string().url({ message: "Por favor, proporciona una URL válida." }).optional(),
+  password: z
+    .string()
+    .min(6, { message: "La contraseña debe tener al menos 6 caracteres." })
+    .max(100, { message: "La contraseña no puede exceder los 100 caracteres." })
+    .regex(/[A-Z]/, {
+      message: "La contraseña debe contener al menos una letra mayúscula.",
+    })
+    .regex(/[a-z]/, {
+      message: "La contraseña debe contener al menos una letra minúscula.",
+    })
+    .regex(/[0-9]/, { message: "La contraseña debe contener al menos un número." })
+    .regex(/[^a-zA-Z0-9]/, {
+      message: "La contraseña debe contener al menos un carácter especial.",
+    })
+    .optional(),
+  provider: z.string().min(1, { message: "El proveedor es requerido." }),
+  providerAccountId: z
+    .string()
+    .min(1, { message: "El ID de la cuenta del proveedor es requerido." }),
+});
