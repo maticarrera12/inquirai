@@ -4,9 +4,53 @@ import Google from "next-auth/providers/google";
 import { ActionResponse } from "./types/global";
 import { api } from "./lib/api";
 import { IAccountDoc } from "./database/account.model";
+import { SignInSchema } from "./lib/validations";
+import { IUserDoc } from "./database/user.model";
+import bcrypt from "bcryptjs";
 
+import Credentials from "next-auth/providers/credentials";
 export const { handlers, signIn, signOut, auth } = NextAuth({
-  providers: [GitHub, Google],
+  providers: [
+    GitHub,
+    Google,
+    Credentials({
+      async authorize(credentials) {
+        const validatedFields = SignInSchema.safeParse(credentials);
+
+        if (validatedFields.success) {
+          const { email, password } = validatedFields.data;
+
+          const { data: existingAccount } = (await api.accounts.getByProvider(
+            email
+          )) as ActionResponse<IAccountDoc>;
+
+          if (!existingAccount) return null;
+
+          const { data: existingUser } = (await api.users.getById(
+            existingAccount.userId.toString()
+          )) as ActionResponse<IUserDoc>;
+
+          if (!existingUser) return null;
+
+          const isValidPassword = await bcrypt.compare(
+            password,
+            existingAccount.password!
+          );
+
+          if (isValidPassword) {
+            return {
+              id: existingUser.id,
+              name: existingUser.name,
+              email: existingUser.email,
+              image: existingUser.image,
+            };
+          }
+        }
+        return null;
+      },
+    }),
+  ],
+
   callbacks: {
     async signIn({ user, account, profile }) {
       if (account?.type === "credentials") return true;
@@ -45,10 +89,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
               ? token.email!
               : account.providerAccountId
           )) as ActionResponse<IAccountDoc>;
-          if(!success || !existingAccount) return token;
+        if (!success || !existingAccount) return token;
 
-          const userId = existingAccount.userId;
-          if(userId) token.sub = userId.toString();
+        const userId = existingAccount.userId;
+        if (userId) token.sub = userId.toString();
       }
       return token;
     },

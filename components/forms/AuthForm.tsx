@@ -23,12 +23,15 @@ import {
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import ROUTES from "@/constants/routes";
+import { ActionResponse } from "@/types/global";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 
 interface AuthFormProps<T extends FieldValues> {
   schema: ZodType<T>;
   defaultValues: T;
-  onSubmit: (data: T) => Promise<{ success: boolean; data?: T }>;
+  onSubmit: (data: T) => Promise<ActionResponse>;
   formType: "SIGN_IN" | "SIGN_UP";
 }
 
@@ -38,18 +41,34 @@ const AuthForm = <T extends FieldValues>({
   formType,
   onSubmit,
 }: AuthFormProps<T>) => {
+  const router = useRouter();
   const form = useForm<T>({
     resolver: zodResolver(schema),
     defaultValues: defaultValues as DefaultValues<T>,
   });
 
-  const handleSubmit: SubmitHandler<T> = async () => {};
+  const handleSubmit: SubmitHandler<T> = async (data) => {
+    const result = (await onSubmit(data)) as ActionResponse;
+    if (result?.success) {
+      toast.success(
+        formType === "SIGN_IN"
+          ? "Has iniciado sesión correctamente"
+          : "Te has registrado correctamente"
+      );
+      router.push(ROUTES.HOME);
+    }else{
+      toast.error(
+        result?.error?.message ||
+          `Ocurrió un error al procesar tu solicitud. Por favor, intenta nuevamente. Error: ${result?.status}`
+      );
+    }
+  };
 
   const buttonText = formType === "SIGN_IN" ? "Iniciar Sesion" : "Registrarse";
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="mt-10 space-y-6">
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="mt-10 space-y-6">
         {Object.keys(defaultValues).map((key) => (
           <FormField
             key={key}
