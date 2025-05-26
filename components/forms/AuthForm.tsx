@@ -52,8 +52,8 @@ const AuthForm = <T extends FieldValues>({
     if (result?.success) {
       toast.success(
         formType === "SIGN_IN"
-          ? "Has iniciado sesión correctamente"
-          : "Te has registrado correctamente"
+          ? "Has iniciado sesión!"
+          : "Te has registrado!"
       );
       router.push(ROUTES.HOME);
     }else{

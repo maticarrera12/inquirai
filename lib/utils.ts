@@ -34,7 +34,7 @@ export const getTimeStamp = (date: Date): string => {
     const interval = Math.floor(secondsAgo / unit.seconds);
     if (interval >= 1) {
       const label = interval === 1 ? unit.label : unit.plural;
-      return `${interval} ${label} atras`;
+      return `hace ${interval} ${label}`;
     }
   }
 

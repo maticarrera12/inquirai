@@ -10,12 +10,11 @@ import React from 'react'
 
 
 
-const NavLinks = ({isMobileNav = false}: {isMobileNav? : boolean }) => {
+const NavLinks = ({isMobileNav = false, userId } : {isMobileNav? : boolean, userId?: string }) => {
 
     const pathname = usePathname()
 
     //TODO: get userId from session
-    const userId = 1
   return (
     <>
     {
