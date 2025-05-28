@@ -1,4 +1,4 @@
-import handleError from "@/lib/handler/error";
+import handleError from "@/lib/handlers/error";
 import { ValidationError } from "@/lib/http-errors";
 import dbConnect from "@/lib/mongoose";
 import { SignInWithOAuthSchema } from "@/lib/validations";
@@ -69,19 +69,22 @@ export async function POST(request: Request) {
     }).session(session);
 
     if (!existingAccount) {
-        await Account.create([
-            {
-                userId: existingUser._id,
-                provider,
-                providerAccountId,
-                name,
-                image
-            }
-        ], { session } );
-        }  
-        
+      await Account.create(
+        [
+          {
+            userId: existingUser._id,
+            provider,
+            providerAccountId,
+            name,
+            image,
+          },
+        ],
+        { session }
+      );
+    }
+
     await session.commitTransaction();
-    return NextResponse.json({success: true})
+    return NextResponse.json({ success: true });
   } catch (error: unknown) {
     await session.abortTransaction();
     return handleError(error, "api") as APIErrorResponse;

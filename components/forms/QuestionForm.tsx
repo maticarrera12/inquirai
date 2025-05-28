@@ -10,12 +10,17 @@ import { MDXEditorMethods } from '@mdxeditor/editor'
 import dynamic from 'next/dynamic'
 import { z } from 'zod'
 import TagCard from '../cards/TagCard'
+import { toast } from 'sonner'
+import { useRouter } from 'next/navigation'
+import { createQuestion } from '@/lib/actions/question.action'
 
 const Editor = dynamic(() => import('@/components/editor'), {
   ssr: false})
 
 
 const QuestionForm = () => {
+
+  const router = useRouter()
 
     const editorRef = useRef<MDXEditorMethods>(null)
 
@@ -64,8 +69,18 @@ const QuestionForm = () => {
       }
     }
 
-    const handleCreateQuestion= (data: z.infer<typeof AskQuestionSchema>)=> {
-      console.log(data)
+    const handleCreateQuestion= async (data: z.infer<typeof AskQuestionSchema>)=> {
+      const result = await createQuestion(data)
+
+      if(result.success){
+        toast.success("Pregunta creada con éxito",
+          {
+            description: "Tu pregunta ha sido creada.",
+            duration: 3000,
+          }
+        )
+        router.push()
+      }
     }
 
   return (

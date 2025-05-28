@@ -1,8 +1,8 @@
 "use server";
 import { ActionResponse, ErrorResponse } from "@/types/global";
-import action from "../handler/action";
+import action from "../handlers/action";
 import { SignInSchema, SignUpSchema } from "@/lib/validations";
-import handleError from "../handler/error";
+import handleError from "../handlers/error";
 import mongoose from "mongoose";
 import User from "@/database/user.model";
 import bcrypt from "bcryptjs";
@@ -71,7 +71,7 @@ export async function signUpWithCredentials(
 }
 
 export async function signInWithCredentials(
-  params: Pick<AuthCredentials, 'email' | 'password'>
+  params: Pick<AuthCredentials, "email" | "password">
 ): Promise<ActionResponse> {
   const validationResult = await action({ params, schema: SignInSchema });
 
@@ -81,9 +81,8 @@ export async function signInWithCredentials(
 
   const { email, password } = validationResult.params!;
 
-
   try {
-    const existingUser = await User.findOne({ email })
+    const existingUser = await User.findOne({ email });
 
     if (!existingUser) {
       throw new NotFoundError("Usuario no encontrado");
@@ -96,7 +95,7 @@ export async function signInWithCredentials(
 
     if (!existingAccount) {
       throw new NotFoundError("Usuario no encontrado");
-    } 
+    }
 
     const passwordMatch = await bcrypt.compare(
       password,
@@ -107,11 +106,10 @@ export async function signInWithCredentials(
       throw new Error("La contraseña es incorrecta");
     }
 
-
     await signIn("credentials", { email, password, redirect: false });
 
     return { success: true };
   } catch (error) {
     return handleError(error) as ErrorResponse;
-  } 
+  }
 }

@@ -1,5 +1,5 @@
 import { IUser } from "@/database/user.model";
-import { fetchHandler } from "./handler/fetch";
+import { fetchHandler } from "./handlers/fetch";
 import { IAccount } from "@/database/account.model";
 import ROUTES from "@/constants/routes";
 
@@ -12,7 +12,7 @@ export const api = {
       user,
       provider,
       providerAccountId,
-    }: SignInWithOAuthParams) => 
+    }: SignInWithOAuthParams) =>
       fetchHandler(`${API_BASE_URL}/auth/${ROUTES.SIGN_IN_OAUTH}`, {
         method: "POST",
         body: JSON.stringify({
@@ -20,7 +20,7 @@ export const api = {
           providerAccountId,
           user,
         }),
-      })
+      }),
   },
   users: {
     getAll: () => fetchHandler(`${API_BASE_URL}/users`),
