@@ -89,7 +89,7 @@ const DataRenderer = <T,>({
             image={{
             light: "/images/light-error.png",
             dark: "/images/dark-error.png",
-            alt: "Error occurred",
+            alt: "Ocurrio un error",
             }}
             title={error?.message || DEFAULT_ERROR.title}
             message={error?.details ? JSON.stringify(error.details, null, 2) : DEFAULT_ERROR.message}
@@ -103,7 +103,7 @@ const DataRenderer = <T,>({
         image={{
           light: "/images/light-illustration.png",
           dark: "/images/dark-illustration.png",
-          alt: "No data found",
+          alt: "No hay datos",
         }}
         title={empty.title}
         message={empty.message}

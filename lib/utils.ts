@@ -6,15 +6,51 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export const getDeviconClassName = (techName: string) => {  
-  const normailzedTechName = techName.replace(/[ .]/g,"").toLowerCase();
+export const techDescriptionMap: { [key: string]: string } = {
+  javascript:
+    "JavaScript es un lenguaje potente para crear aplicaciones web dinámicas, interactivas y modernas.",
+  typescript:
+    "TypeScript añade tipado fuerte a JavaScript, ideal para aplicaciones escalables y mantenibles.",
+  react:
+    "React es una biblioteca popular para construir interfaces de usuario rápidas y modulares.",
+  nextjs:
+    "Next.js es un framework de React para renderizado del lado del servidor y aplicaciones web optimizadas.",
+  nodejs:
+    "Node.js permite ejecutar JavaScript en el servidor, creando aplicaciones de red rápidas y escalables.",
+  python:
+    "Python es un lenguaje versátil conocido por su legibilidad y gran ecosistema, usado en ciencia de datos y automatización.",
+  java:
+    "Java es un lenguaje orientado a objetos, común en aplicaciones empresariales y desarrollo Android.",
+  cplusplus:
+    "C++ es un lenguaje de alto rendimiento, adecuado para software de sistemas, motores de juegos y aplicaciones complejas.",
+  git:
+    "Git es un sistema de control de versiones que rastrea cambios en el código fuente durante el desarrollo.",
+  docker:
+    "Docker es una plataforma de contenedores que simplifica el despliegue y la gestión de entornos de aplicaciones.",
+  mongodb:
+    "MongoDB es una base de datos NoSQL para manejar grandes volúmenes de datos flexibles y basados en documentos.",
+  mysql:
+    "MySQL es una base de datos relacional popular, conocida por su fiabilidad y facilidad de uso.",
+  postgresql:
+    "PostgreSQL es una base de datos relacional de código abierto, robusta y con funciones avanzadas.",
+  aws:
+    "AWS es una plataforma de nube integral que ofrece una amplia gama de servicios para despliegue, almacenamiento y más.",
+};
 
+export const getTechDescription = (techName: string) => {
+  const normalizedTechName = techName.replace(/[ .]/g, "").toLowerCase();
+  return techDescriptionMap[normalizedTechName]
+    ? techDescriptionMap[normalizedTechName]
+    : `${techName} es una tecnología o herramienta ampliamente utilizada en el desarrollo web, que ofrece características y capacidades valiosas.`;
+};
 
-  return techMap[normailzedTechName]
-  ? `${techMap[normailzedTechName]} colored`
-  : "devicon-devicon-plain";
+export const getDeviconClassName = (techName: string) => {
+  const normalizedTechName = techName.replace(/[ .]/g, "").toLowerCase();
 
-}
+  return techMap[normalizedTechName]
+    ? `${techMap[normalizedTechName]} colored`
+    : "devicon-devicon-plain";
+};
 
 export const getTimeStamp = (createdAt: Date): string => {
   const date = new Date(createdAt);
