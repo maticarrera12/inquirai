@@ -78,6 +78,14 @@ export const AskQuestionSchema = z.object({
     .max(5, { message: "No se pueden agregar mas de 5 tags." }),
 });
 
+export const EditQuestionSchema = AskQuestionSchema.extend({
+  questionId: z.string().min(1, { message: "El ID de la pregunta es requerido." }),
+});
+
+export const GetQuestionSchema = z.object({
+  questionId: z.string().min(1, { message: "El ID de la pregunta es requerido." }),
+});
+
 export const UserSchema = z.object({
   name: z.string().min(1, { message: "El nombre es requerido." }),
   username: z
@@ -147,4 +155,12 @@ export const SignInWithOAuthSchema = z.object({
       .url({ message: "Por favor inserte una URL de imagen válida." })
       .optional(),
   }),
+});
+
+export const PaginatedSearchParamsSchema = z.object({
+  page: z.number().int().positive().default(1),
+  pageSize: z.number().int().positive().default(10),
+  query: z.string().optional(),
+  filter: z.string().optional(),
+  sort: z.string().optional(),
 });
