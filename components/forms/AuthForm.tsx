@@ -1,16 +1,5 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  DefaultValues,
-  Field,
-  FieldValue,
-  FieldValues,
-  Path,
-  SubmitHandler,
-  useForm,
-} from "react-hook-form";
-import { z, ZodType } from "zod";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -21,11 +10,19 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import Link from "next/link";
 import ROUTES from "@/constants/routes";
-import { ActionResponse } from "@/types/global";
-import { toast } from "sonner";
+import { zodResolver } from "@hookform/resolvers/zod";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
+import {
+  DefaultValues,
+  FieldValues,
+  Path,
+  SubmitHandler,
+  useForm
+} from "react-hook-form";
+import { toast } from "sonner";
+import { z, ZodType } from "zod";
 
 
 interface AuthFormProps<T extends FieldValues> {
@@ -42,7 +39,8 @@ const AuthForm = <T extends FieldValues>({
   onSubmit,
 }: AuthFormProps<T>) => {
   const router = useRouter();
-  const form = useForm<T>({
+  
+    const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
     defaultValues: defaultValues as DefaultValues<T>,
   });

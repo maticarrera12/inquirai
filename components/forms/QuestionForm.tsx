@@ -23,7 +23,7 @@ import { useRouter } from "next/navigation";
 import { createQuestion, editQuestion } from "@/lib/actions/question.action";
 import ROUTES from "@/constants/routes";
 import { ReloadIcon } from "@radix-ui/react-icons";
-import { Question } from "@/types/global";
+
 
 const Editor = dynamic(() => import("@/components/editor"), {
   ssr: false,
