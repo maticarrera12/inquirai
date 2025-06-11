@@ -37,6 +37,10 @@ export const EMPTY_TAGS = {
         href: ROUTES.TAGS,
     },
 };
+export const EMPTY_ANSWERS = {
+    title: "No se encontraron respuestas",
+    message: "Parece que aún no has respondido a ninguna pregunta. ¡Comparte tu conocimiento!",
+};
 
 export const EMPTY_COLLECTIONS = {
     title: "No hay colecciones",
