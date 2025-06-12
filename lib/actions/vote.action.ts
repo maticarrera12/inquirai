@@ -1,6 +1,11 @@
 "use server";
 
+import mongoose, { ClientSession } from "mongoose";
+import { revalidatePath } from "next/cache";
+
+import ROUTES from "@/constants/routes";
 import { Answer, Question, Vote } from "@/database";
+
 import action from "../handlers/action";
 import handleError from "../handlers/error";
 import {
@@ -8,7 +13,6 @@ import {
   HasVotedSchema,
   UpdateVoteCountSchema,
 } from "../validations";
-import mongoose, { ClientSession } from "mongoose";
 
 export async function updateVoteCount(
   params: UpdateVoteCountParams,
@@ -20,7 +24,7 @@ export async function updateVoteCount(
   });
 
   if (validationResult instanceof Error) {
-    return handleError(validationResult) as ActionResponse;
+    return handleError(validationResult) as ErrorResponse;
   }
 
   const { targetId, targetType, voteType, change } = validationResult.params!;
@@ -35,14 +39,14 @@ export async function updateVoteCount(
       { new: true, session }
     );
 
-    if (!result) {
-      return handleError(new Error("No encontrado")) as ActionResponse;
-    }
-    return {
-      success: true,
-    };
+    if (!result)
+      return handleError(
+        new Error("Falla al actualizar los votos")
+      ) as ErrorResponse;
+
+    return { success: true };
   } catch (error) {
-    return handleError(error) as ActionResponse;
+    return handleError(error) as ErrorResponse;
   }
 }
 
@@ -56,15 +60,16 @@ export async function createVote(
   });
 
   if (validationResult instanceof Error) {
-    return handleError(validationResult) as ActionResponse;
+    return handleError(validationResult) as ErrorResponse;
   }
 
   const { targetId, targetType, voteType } = validationResult.params!;
   const userId = validationResult.session?.user?.id;
 
-  if (!userId) handleError(new Error("Usuario no autorizado")) as ErrorResponse;
+  if (!userId) return handleError(new Error("No autorizado")) as ErrorResponse;
 
   const session = await mongoose.startSession();
+  session.startTransaction();
 
   try {
     const existingVote = await Vote.findOne({
@@ -75,16 +80,9 @@ export async function createVote(
 
     if (existingVote) {
       if (existingVote.voteType === voteType) {
-        await Vote.deleteOne({
-          _id: existingVote._id,
-        }).session(session);
+        await Vote.deleteOne({ _id: existingVote._id }).session(session);
         await updateVoteCount(
-          {
-            targetId,
-            targetType,
-            voteType,
-            change: -1,
-          },
+          { targetId, targetType, voteType, change: -1 },
           session
         );
       } else {
@@ -93,24 +91,32 @@ export async function createVote(
           { voteType },
           { new: true, session }
         );
-        await updateVoteCount({
-          targetId,
-          targetType,
-          voteType,
-          change: 1,
-        });
+        await updateVoteCount(
+          { targetId, targetType, voteType: existingVote.voteType, change: -1 },
+          session
+        );
+        await updateVoteCount(
+          { targetId, targetType, voteType, change: 1 },
+          session
+        );
       }
     } else {
-      await Vote.create([{ targetId, targetType, voteType, change: 1 }], {
-        session,
-      });
-      await updateVoteCount(
+
+      await Vote.create(
+        [
+          {
+            author: userId,
+            actionId: targetId,
+            actionType: targetType,
+            voteType,
+          },
+        ],
         {
-          targetId,
-          targetType,
-          voteType,
-          change: 1,
-        },
+          session,
+        }
+      );
+      await updateVoteCount(
+        { targetId, targetType, voteType, change: 1 },
         session
       );
     }
@@ -118,9 +124,9 @@ export async function createVote(
     await session.commitTransaction();
     session.endSession();
 
-    return {
-      success: true,
-    };
+    revalidatePath(ROUTES.QUESTION(targetId));
+
+    return { success: true };
   } catch (error) {
     await session.abortTransaction();
     session.endSession();
@@ -154,20 +160,17 @@ export async function hasVoted(
     if (!vote) {
       return {
         success: false,
-        data: {
-          hasUpvoted: false,
-          hasDownvoted: false,
-        },
-      };
-    } else {
-      return {
-        success: true,
-        data: {
-          hasUpvoted: vote.voteType === "upvote",
-          hasDownvoted: vote.voteType === "downvote",
-        },
+        data: { hasUpvoted: false, hasDownvoted: false },
       };
     }
+
+    return {
+      success: true,
+      data: {
+        hasUpvoted: vote.voteType === "upvote",
+        hasDownvoted: vote.voteType === "downvote",
+      },
+    };
   } catch (error) {
     return handleError(error) as ErrorResponse;
   }

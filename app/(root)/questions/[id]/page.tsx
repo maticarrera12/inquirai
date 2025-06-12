@@ -1,43 +1,48 @@
 import AllAnswers from "@/components/answers/AllAnswers";
 import TagCard from "@/components/cards/TagCard";
-import  Preview  from "@/components/editor/Preview";
+import Preview from "@/components/editor/Preview";
 import AnswerForm from "@/components/forms/AnswerForm";
 import Metric from "@/components/Metric";
 import UserAvatar from "@/components/UserAvatar";
-import Votes from "@/components/votes/page";
+import Votes from "@/components/votes/Votes";
 import ROUTES from "@/constants/routes";
 import { getAnswers } from "@/lib/actions/answer.action";
 import { getQuestion, incrementViews } from "@/lib/actions/question.action";
+import { hasVoted } from "@/lib/actions/vote.action";
 import { formatNumber, getTimeStamp } from "@/lib/utils";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { after } from "next/server";
-import React from "react";
-
-
+import React, { Suspense } from "react";
 
 const QuestionDetails = async ({ params }: RouteParams) => {
   const { id } = await params;
-  const {success, data:question} = await getQuestion({
-    questionId: id
-  })
+  const { success, data: question } = await getQuestion({
+    questionId: id,
+  });
 
-  after(async()=>{
-    await incrementViews({questionId: id})
-
-  })
+  after(async () => {
+    await incrementViews({ questionId: id });
+  });
   if (!success || !question) {
-    return (
-      redirect("/404")
-    );
+    return redirect("/404");
   }
 
-  const { success: areAnswersLoaded, data: answersResult, error: answersError} = await getAnswers({
+  const {
+    success: areAnswersLoaded,
+    data: answersResult,
+    error: answersError,
+  } = await getAnswers({
     questionId: id,
     page: 1,
     pageSize: 10,
-    filter: "latest"
-  })
+    filter: "latest",
+  });
+
+  const hasVotedPromise = hasVoted({
+    targetId: question._id,
+    targetType: "question",
+  });
 
   console.log(answersResult);
 
@@ -49,7 +54,7 @@ const QuestionDetails = async ({ params }: RouteParams) => {
         <div className="flex w-full flex-col-reverse justify-between">
           <div className="flex items-center justify-start gap-1">
             <UserAvatar
-            imageUrl={author.image}
+              imageUrl={author.image}
               id={author._id}
               name={author.name}
               className="size-[22px]"
@@ -63,12 +68,16 @@ const QuestionDetails = async ({ params }: RouteParams) => {
           </div>
 
           <div className="flex justify-end">
-            <Votes
-            upvotes={question.upvotes}
-            hasUpvoted={true}
-            downvotes={question.downvotes}
-            hasDownvoted={false}
+            <Suspense fallback={<div>Cargando...</div>}>
+                 <Votes
+              upvotes={question.upvotes}
+              downvotes={question.downvotes}
+              hasVotedPromise={hasVotedPromise}
+              targetType="question"
+              targetId={question._id}
             />
+            </Suspense>
+         
           </div>
         </div>
 
@@ -116,15 +125,19 @@ const QuestionDetails = async ({ params }: RouteParams) => {
 
       <section className="my-5">
         <AllAnswers
-        data={answersResult?.answers}
-        success={areAnswersLoaded}
-        error={answersError}
-        totalAnswers={answersResult?.totalAnswers || 0}
+          data={answersResult?.answers}
+          success={areAnswersLoaded}
+          error={answersError}
+          totalAnswers={answersResult?.totalAnswers || 0}
         />
       </section>
 
       <section className="my-5">
-        <AnswerForm questionId={question._id} questionTitle={question.title} questionContent={question.content}/>
+        <AnswerForm
+          questionId={question._id}
+          questionTitle={question.title}
+          questionContent={question.content}
+        />
       </section>
     </>
   );
