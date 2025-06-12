@@ -87,10 +87,10 @@ const AnswerForm = ({ questionId }: { questionId: string }) => {
         </Button>
       </div>
 
-      <Form {...form}>
+     <Form {...form}>
         <form
           onSubmit={form.handleSubmit(handleSubmit)}
-          className="mt-10 flex w-full flex-col gap-10"
+          className="mt-6 flex w-full flex-col gap-10"
         >
           <FormField
             control={form.control}
@@ -102,6 +102,7 @@ const AnswerForm = ({ questionId }: { questionId: string }) => {
                     value={field.value}
                     editorRef={editorRef}
                     fieldChange={field.onChange}
+
                   />
                 </FormControl>
                 <FormMessage />

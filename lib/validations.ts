@@ -185,3 +185,11 @@ export const AnswerServerSchema = AnswerSchema.extend({
 export const GetAnswersSchema = PaginatedSearchParamsSchema.extend({
   questionId: z.string().min(1, { message: "El ID de la pregunta es requerido." }),
 });
+
+export const AIAnswerSchema = z.object({
+  question: z
+  .string()
+  .min(5, { message: "La pregunta es requerida." })
+  .max(130, { message: "La pregunta no puede exceder los 130 caracteres." }),  
+  content: z.string().min(100, { message: "La respuesta debe tener mas de 100 caracteres." }),
+})
