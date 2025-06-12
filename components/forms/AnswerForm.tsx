@@ -11,22 +11,30 @@ import { createAnswer } from "@/lib/actions/answer.action";
 import { AnswerSchema } from "@/lib/validations";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { MDXEditorMethods } from "@mdxeditor/editor";
-import { ReloadIcon } from "@radix-ui/react-icons";
 import dynamic from "next/dynamic";
-import Image from "next/image";
 import { useRef, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { toast } from "sonner";
+import { useSession } from "next-auth/react";
+import { api } from "@/lib/api";
+import Image from "next/image";
+import { ReloadIcon } from "@radix-ui/react-icons";
 
 const Editor = dynamic(() => import("@/components/editor"), {
   ssr: false,
 });
 
-const AnswerForm = ({ questionId }: { questionId: string }) => {
+interface Props {
+  questionId: string;
+  questionTitle: string;
+  questionContent: string;
+}
+
+const AnswerForm = ({ questionId, questionTitle, questionContent }: Props) => {
   const [isAnswering, startAnsweringTransition] = useTransition();
   const [isAISubmitting, setIsAISubmitting] = useState(false);
-
+  const session = useSession();
   const editorRef = useRef<MDXEditorMethods>(null);
 
   const form = useForm<z.infer<typeof AnswerSchema>>({
@@ -49,6 +57,10 @@ const AnswerForm = ({ questionId }: { questionId: string }) => {
           description: "Tu pregunta ha sido posteada.",
           duration: 3000,
         });
+
+        if (editorRef.current) {
+          editorRef.current.setMarkdown("");
+        }
       } else {
         toast.error("Error al enviar la respuesta", {
           description: result?.error?.message,
@@ -56,6 +68,61 @@ const AnswerForm = ({ questionId }: { questionId: string }) => {
         });
       }
     });
+  };
+
+  const generateAIAnswer = async () => {
+    if (session.status !== "authenticated") {
+      return toast.error(
+        "Debes iniciar sesión para generar respuestas con IA",
+        {
+          duration: 3000,
+        }
+      );
+    }
+
+    setIsAISubmitting(true);
+
+    const userAnswer = editorRef.current?.getMarkdown() || "";
+
+    try {
+      const { success, data, error } = await api.ai.getAnswer(
+        questionTitle,
+        questionContent,
+        userAnswer
+      );
+
+      if (!success) {
+        return toast.error("Error al generar respuesta con IA", {
+          description:
+            error?.message || "Por favor, intenta nuevamente más tarde.",
+          duration: 3000,
+        });
+      }
+
+      const formattedAnswer = data.replace(/<br>/g, " ").toString().trim();
+
+      if (editorRef.current) {
+        editorRef.current.setMarkdown(formattedAnswer);
+        form.setValue("content", formattedAnswer);
+        form.trigger("content");
+      }
+
+      toast.success("Respuesta generada con éxito", {
+        description:
+          "La respuesta ha sido generada por IA y añadida al editor.",
+        duration: 3000,
+      });
+    } catch (error) {
+      toast.error("Error al generar respuesta con IA", {
+        description:
+          error instanceof Error
+            ? error.message
+            : "Por favor, intenta nuevamente más tarde.",
+        duration: 3000,
+      });
+    } finally {
+      setIsAISubmitting(false);
+    }
   };
   return (
     <div>
@@ -66,6 +133,7 @@ const AnswerForm = ({ questionId }: { questionId: string }) => {
         <Button
           className="btn light-border-2 gap-1.5 rounded-md border px-4 py-2.5 text-primary-500 shadow-none dark:text-primary-500"
           disabled={isAISubmitting}
+          onClick={generateAIAnswer}
         >
           {isAISubmitting ? (
             <>
@@ -87,7 +155,7 @@ const AnswerForm = ({ questionId }: { questionId: string }) => {
         </Button>
       </div>
 
-     <Form {...form}>
+      <Form {...form}>
         <form
           onSubmit={form.handleSubmit(handleSubmit)}
           className="mt-6 flex w-full flex-col gap-10"
@@ -102,7 +170,6 @@ const AnswerForm = ({ questionId }: { questionId: string }) => {
                     value={field.value}
                     editorRef={editorRef}
                     fieldChange={field.onChange}
-
                   />
                 </FormControl>
                 <FormMessage />
