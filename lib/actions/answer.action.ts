@@ -58,7 +58,7 @@ export async function createAnswer(
 
 }
 
-export async function getAnswers(params: GetAnswersdParams): Promise<ActionResponse<{
+export async function getAnswers(params: GetAnswersParams): Promise<ActionResponse<{
     answers: Answer[];
     isNext: boolean;
     totalAnswers: number;

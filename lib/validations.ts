@@ -195,3 +195,13 @@ export const AIAnswerSchema = z.object({
   userAnswer: z.string()
   .min(20, { message: "La respuesta del usuario debe tener mas de 20 caracteres." })
 })
+
+export const CreateVoteSchema = z.object({
+  targetId: z.string().min(1, { message: "El ID del objetivo es requerido." }),
+  targetType: z.enum(["question", "answer"], {message: "El tipo de objetivo es requerido."}),
+  voteType: z.enum(["upvote", "downvote"], { message: "El tipo de voto es requerido." }),
+});
+
+export const UpdateVoteCountSchema = CreateVoteSchema.extend({
+  change: z.number().int().min(-1).max(1)
+});
