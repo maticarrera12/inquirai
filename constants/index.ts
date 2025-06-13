@@ -4,11 +4,7 @@ export const sidebarLinks = [
     route: "/",
     label: "Home",
   },
-  {
-    imgURL: "/icons/users.svg",
-    route: "/community",
-    label: "Comunidad",
-  },
+
   {
     imgURL: "/icons/star.svg",
     route: "/collection",
@@ -28,6 +24,11 @@ export const sidebarLinks = [
     imgURL: "/icons/user.svg",
     route: "/profile",
     label: "Perfil",
+  },
+    {
+    imgURL: "/icons/users.svg",
+    route: "/community",
+    label: "Comunidad",
   },
   {
     imgURL: "/icons/question.svg",
