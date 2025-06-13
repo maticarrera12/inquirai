@@ -60,3 +60,15 @@ interface Answer{
   upvotes: number;
   downvotes: number;
 }
+
+interface User{
+  _id: string;
+  name: string;
+  email: string;
+  username: string;
+  bio?: string;
+  image?: string;
+  location?: string;
+  porfolio?: string;
+  reputation?: number;
+}
