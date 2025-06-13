@@ -9,7 +9,7 @@ import { Collection, Question } from "@/database";
 import { revalidatePath } from "next/cache";
 import ROUTES from "@/constants/routes";
 
-export async function toogleSaveQuestion(
+export async function toggleSaveQuestion(
   params: CollectionBaseParams
 ): Promise<ActionResponse<{ saved: boolean }>> {
   const validationResult = await action({
