@@ -44,7 +44,7 @@ interface RouteParams {
   searchParams: Promise<Record<string, string>>;
 }
 
-interface PaginatedSearchParams{
+interface PaginatedSearchParams {
   page?: number;
   pageSize?: number;
   query?: string;
@@ -52,7 +52,7 @@ interface PaginatedSearchParams{
   sort?: string;
 }
 
-interface Answer{
+interface Answer {
   _id: string;
   content: string;
   author: Author;
@@ -61,7 +61,7 @@ interface Answer{
   downvotes: number;
 }
 
-interface User{
+interface User {
   _id: string;
   name: string;
   email: string;
@@ -71,4 +71,10 @@ interface User{
   location?: string;
   porfolio?: string;
   reputation?: number;
+}
+
+interface Collection {
+  _id: string;
+  author: string | Author;
+  question: Question;
 }
