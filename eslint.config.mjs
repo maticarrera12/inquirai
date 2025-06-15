@@ -10,19 +10,20 @@ const compat = new FlatCompat({
   baseDirectory: __dirname,
 });
 
-const eslintConfig = [
+export default [
   {
     ignores: ["components/ui/**/*"],
   },
   ...compat.extends(
     "next/core-web-vitals",
-    "next/typescript",
-    "standard",
-    "prettier",
-    "plugin:tailwindcss/recommended"
+    "next",
+    "prettier"
+    // NO USAR: "standard"
+    // NO USAR: "plugin:tailwindcss/recommended" (incompatible con Tailwind 4.x)
   ),
   {
     rules: {
+      // Import order si querés mantenerlo:
       "import/order": [
         "error",
         {
@@ -34,9 +35,7 @@ const eslintConfig = [
             "index",
             "object",
           ],
-
-          "newlines-between": "always",
-
+          "newlines-between": "never",
           pathGroups: [
             {
               pattern: "@app/**",
@@ -44,9 +43,7 @@ const eslintConfig = [
               position: "after",
             },
           ],
-
           pathGroupsExcludedImportTypes: ["builtin"],
-
           alphabetize: {
             order: "asc",
             caseInsensitive: true,
@@ -58,11 +55,8 @@ const eslintConfig = [
   },
   {
     files: ["**/*.ts", "**/*.tsx"],
-
     rules: {
       "no-undef": "off",
     },
   },
 ];
-
-export default eslintConfig;
