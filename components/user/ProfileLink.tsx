@@ -5,7 +5,7 @@ import React from 'react'
 
 interface Props {
   imgUrl: string;
-  href: string;
+  href?: string;
   title: string;
 }
 const ProfileLink = ({imgUrl, href, title}: Props) => {
