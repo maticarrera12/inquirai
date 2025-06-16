@@ -2,24 +2,15 @@ import Image from "next/image";
 import Link from "next/link";
 import ROUTES from "@/constants/routes";
 import { getHotQuestions } from "@/lib/actions/question.action";
-import DataRenderer from "../DataRenderer";
 import { getTopTags } from "@/lib/actions/tag.action";
 import TagCard from "../cards/TagCard";
+import DataRenderer from "../DataRenderer";
 
-const popularTags = [
-  { _id: "1", title: "react", questions: 100 },
-  { _id: "2", title: "javascript", questions: 200 },
-  { _id: "3", title: "python", questions: 150 },
-  { _id: "4", title: "css3", questions: 80 },
-  { _id: "5", title: "html5", questions: 120 },
-];
 const RightSidebar = async () => {
-  const { success, data: hotQuestions, error } = await getHotQuestions();
-  const {
-    success: tagSuccess,
-    data: tags,
-    error: tagError,
-  } = await getTopTags();
+  const [
+    { success, data: hotQuestions, error },
+    { success: tagSuccess, data: tags, error: tagError },
+  ] = await Promise.all([getHotQuestions(), getTopTags()]);
   return (
     <section className="pt-36 custom-scrollbar background-light900_dark200 light-border sticky ring-0 top-0 flex h-screen w-[350px] flex-col gap-6 overflow-y-auto border-l p-6 shadow-light-300 dark:shadow-none max-xl:hidden lg:w-[266px]">
       <div>
@@ -68,20 +59,20 @@ const RightSidebar = async () => {
             }}
             success={tagSuccess}
             error={tagError}
-            render={(tags) => <div className="mt-7 flex flex-col gap-4">
-              {
-                tags.map(({ _id, name, questions }) => (
+            render={(tags) => (
+              <div className="mt-7 flex flex-col gap-4">
+                {tags.map(({ _id, name, questions }) => (
                   <TagCard
-                  key={_id}
-                  _id={_id}
-                  name={name}
-                  showCount
-                  compact
-                  questions={questions}
+                    key={_id}
+                    _id={_id}
+                    name={name}
+                    showCount
+                    compact
+                    questions={questions}
                   />
-                ))
-              }
-            </div>}
+                ))}
+              </div>
+            )}
           />
         </div>
       </div>

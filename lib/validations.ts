@@ -215,3 +215,7 @@ export const HasVotedSchema = CreateVoteSchema.pick({
 export const CollectionBaseSchema = z.object({
   questionId: z.string().min(1, { message: "El ID de la pregunta es requerido." }),
 });
+
+export const GetUserSchema = z.object({
+  userId: z.string().min(1, { message: "El ID del usuario es requerido." }),
+});
