@@ -219,3 +219,7 @@ export const CollectionBaseSchema = z.object({
 export const GetUserSchema = z.object({
   userId: z.string().min(1, { message: "El ID del usuario es requerido." }),
 });
+
+export const GetUserQuestionSchema = PaginatedSearchParamsSchema.extend({
+  userId: z.string().min(1, { message: "El ID del usuario es requerido." }),
+});
