@@ -2,50 +2,81 @@ import dayjs from "dayjs";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { auth } from "@/auth";
+import AnswerCard from "@/components/cards/AnswerCard";
 import QuestionCard from "@/components/cards/QuestionCard";
 import DataRenderer from "@/components/DataRenderer";
 import Pagination from "@/components/Pagination";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import ProfileLink from "@/components/user/ProfileLink";
 import Stats from "@/components/user/Stats";
 import UserAvatar from "@/components/UserAvatar";
-import { EMPTY_QUESTION } from "@/constants/states";
-import { getUser, getUserQuestions } from "@/lib/actions/user.action";
+import { EMPTY_ANSWERS, EMPTY_QUESTION, EMPTY_TAGS } from "@/constants/states";
+import {
+  getUser,
+  getUserQuestions,
+  getUserAnswers,
+  getUserTags,
+} from "@/lib/actions/user.action";
+import page from "../../page";
+import TagCard from "@/components/cards/TagCard";
 
 const Profile = async ({ params, searchParams }: RouteParams) => {
+  // /12312313
   const { id } = await params;
+  // ?id=1&page=1&pageSize=10
   const { page, pageSize } = await searchParams;
+
   if (!id) notFound();
 
   const loggedInUser = await auth();
-
-  const { success, error, data } = await getUser({
+  const { success, data, error } = await getUser({
     userId: id,
   });
 
-  if (!success) {
+  if (!success)
     return (
       <div>
         <div className="h1-bold text-dark100_light900">{error?.message}</div>
       </div>
     );
-  }
 
   const { user, totalQuestions, totalAnswers } = data!;
+
   const {
     success: userQuestionsSuccess,
-    error: userQuestionsError,
     data: userQuestions,
+    error: userQuestionsError,
   } = await getUserQuestions({
     userId: id,
     page: Number(page) || 1,
     pageSize: Number(pageSize) || 10,
   });
 
+  const {
+    success: userAnswersSuccess,
+    data: userAnswers,
+    error: userAnswersError,
+  } = await getUserAnswers({
+    userId: id,
+    page: Number(page) || 1,
+    pageSize: Number(pageSize) || 10,
+  });
+  const {
+    success: userTopTagsSuccess,
+    data: userTopTags,
+    error: userTopTagsError,
+  } = await getUserTags({
+    userId: id,
+  });
+
   const { questions, isNext: hasMoreQuestions } = userQuestions!;
+  const { answers, isNext: hasMoreAnswers } = userAnswers!;
+  const {tags} = userTopTags!
+
   const { _id, name, image, portfolio, location, createdAt, username, bio } =
     user;
+
   return (
     <>
       <section className="flex flex-col-reverse items-start justify-between sm:flex-row">
@@ -55,6 +86,7 @@ const Profile = async ({ params, searchParams }: RouteParams) => {
             name={name}
             imageUrl={image}
             className="size-[140px] rounded-full object-cover"
+            fallbackClassName="text-6xl fond-bolder"
           />
 
           <div className="mt-3">
@@ -67,20 +99,21 @@ const Profile = async ({ params, searchParams }: RouteParams) => {
               {portfolio && (
                 <ProfileLink
                   imgUrl="/icons/link.svg"
-                  title="Portfolio"
                   href={portfolio}
+                  title="Portfolio"
                 />
               )}
               {location && (
-                <ProfileLink imgUrl="/icons/location.svg" title="location" />
+                <ProfileLink imgUrl="/icons/location.svg" title="Portfolio" />
               )}
               <ProfileLink
                 imgUrl="/icons/calendar.svg"
                 title={dayjs(createdAt).format("MMMM YYYY")}
               />
             </div>
+
             {bio && (
-              <p className="mt-8 paragraph-regular text-dark400_light800">
+              <p className="paragraph-regular text-dark400_light800 mt-8">
                 {bio}
               </p>
             )}
@@ -89,9 +122,9 @@ const Profile = async ({ params, searchParams }: RouteParams) => {
 
         <div className="flex justify-end max-sm:mb-5 max-sm:w-full sm:mt-3">
           {loggedInUser?.user?.id === id && (
-            <Link href={"/profile/edit"}>
+            <Link href="/profile/edit">
               <Button className="paragraph-medium btn-secondary text-dark300_light900 min-h-12 min-w-44 px-4 py-3">
-                Editar perfil
+                Edit Profile
               </Button>
             </Link>
           )}
@@ -112,7 +145,7 @@ const Profile = async ({ params, searchParams }: RouteParams) => {
         <Tabs defaultValue="top-posts" className="flex-[2]">
           <TabsList className="background-light800_dark400 min-h-[42px] p-1">
             <TabsTrigger value="top-posts" className="tab">
-              Top Posts
+              Posts
             </TabsTrigger>
             <TabsTrigger value="answers" className="tab">
               Answers
@@ -127,7 +160,7 @@ const Profile = async ({ params, searchParams }: RouteParams) => {
               empty={EMPTY_QUESTION}
               success={userQuestionsSuccess}
               error={userQuestionsError}
-              render={(hotQuestions) => (
+              render={(questions) => (
                 <div className="flex w-full flex-col gap-6">
                   {questions.map((question) => (
                     <QuestionCard key={question._id} question={question} />
@@ -135,18 +168,58 @@ const Profile = async ({ params, searchParams }: RouteParams) => {
                 </div>
               )}
             />
+
             <Pagination page={page} isNext={hasMoreQuestions} />
           </TabsContent>
 
           <TabsContent value="answers" className="flex w-full flex-col gap-6">
-            Lista de Respuestas
+            <DataRenderer
+              data={answers}
+              empty={EMPTY_ANSWERS}
+              success={userAnswersSuccess}
+              error={userAnswersError}
+              render={(answers) => (
+                <div className="flex w-full flex-col gap-6">
+                  {answers.map((answer) => (
+                    <AnswerCard
+                      key={answer._id}
+                      {...answer}
+                      content={answer.content.slice(0, 27)}
+                      containerClasses="card-wrapper rounded-[10px] px-7 py-9 sm:px-11"
+                      showReadMore
+                    />
+                  ))}
+                </div>
+              )}
+            />
+
+            <Pagination page={page} isNext={hasMoreAnswers || false} />
           </TabsContent>
         </Tabs>
 
         <div className="flex w-full min-w-[250px] flex-1 flex-col max-lg:hidden">
           <h3 className="h3-bold text-dark200_light900">Top Tech</h3>
           <div className="mt-7 flex flex-col gap-4">
-            <p>Lista de tags</p>
+            <DataRenderer
+              data={tags}
+              empty={EMPTY_TAGS}
+              success={userTopTagsSuccess}
+              error={userTopTagsError}
+              render={(TAGS) => (
+                <div className="mt-3 flex w-full flex-col gap-4">
+                  {tags.map((tag) => (
+                    <TagCard
+                    key={tag._id}
+                    _id={tag._id}
+                    name={tag.name}
+                    questions={tag.count}
+                    showCount
+                    compact
+                    />
+                  ))}
+                </div>
+              )}
+            />
           </div>
         </div>
       </section>
