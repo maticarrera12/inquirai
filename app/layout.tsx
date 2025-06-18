@@ -69,7 +69,7 @@ export const metadata: Metadata = {
   icons: {
     icon: "/images/site-logo.svg", // regular favicon
     shortcut: "/favicon.ico", // browser address bar icon
-    apple: "/apple-touch-icon.png", // Apple devices
+    // apple: "/apple-touch-icon.png", // Apple devices
     other: [
       {
         rel: "mask-icon",
@@ -79,8 +79,9 @@ export const metadata: Metadata = {
     ],
   },
 
-  // Optional: Theme color for browser UI and mobile experience
-  themeColor: "#18181b",
+};
+export const viewport = {
+   themeColor: "#18181b",
 };
 
 const RootLayout = async ({ children }: { children: ReactNode }) => {

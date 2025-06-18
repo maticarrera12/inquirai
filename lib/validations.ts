@@ -203,11 +203,9 @@ export const AIAnswerSchema = z.object({
   content: z
     .string()
     .min(100, { message: "La respuesta debe tener mas de 100 caracteres." }),
-  userAnswer: z
-    .string()
-    .min(20, {
-      message: "La respuesta del usuario debe tener mas de 20 caracteres.",
-    }),
+  userAnswer: z.string().min(20, {
+    message: "La respuesta del usuario debe tener mas de 20 caracteres.",
+  }),
 });
 
 export const CreateVoteSchema = z.object({
@@ -273,4 +271,39 @@ export const CreateInteractionSchema = z.object({
 export const GlobalSearchSchema = z.object({
   query: z.string(),
   type: z.string().nullable().optional(),
-})
+});
+
+export const ProfileSchema = z.object({
+  name: z
+    .string()
+    .min(3, { message: "El nombre debe tener al menos 3 caracteres." })
+    .max(130, { message: "El nombre no puede tener más de 130 caracteres." }),
+
+  username: z
+    .string()
+    .min(3, { message: "El nombre de usuario debe tener al menos 3 caracteres." })
+    .max(100, { message: "El nombre de usuario no puede tener más de 100 caracteres." }),
+  portfolio: z.string().url({ message: "Por favor, proporciona una URL válida." }),
+  location: z.string().min(3, { message: "Por favor, proporciona una ubicación válida." }),
+  bio: z.string().min(3, {
+    message: "La biografía debe tener al menos 3 caracteres.",
+  }),
+});
+
+export const UpdateUserSchema = z.object({
+  name: z
+    .string()
+    .min(3, {
+      message: "El nombre debe tener al menos 3 caracteres.",
+    })
+    .max(130, { message: "El nombre no puede tener más de 130 caracteres." }),
+  username: z
+    .string()
+    .min(3, { message: "El nombre de usuario debe tener al menos 3 caracteres." })
+    .max(100, { message: "El nombre de usuario no puede tener más de 100 caracteres." }),
+  portfolio: z.string().url({ message: "Por favor, proporciona una URL válida." }),
+  location: z.string().min(3, { message: "Por favor, proporciona una ubicación válida." }),
+  bio: z.string().min(3, {
+    message: "La biografía debe tener al menos 3 caracteres.",
+  }),
+});

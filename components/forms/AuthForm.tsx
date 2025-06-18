@@ -1,5 +1,17 @@
 "use client";
 
+import { zodResolver } from "@hookform/resolvers/zod";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import {
+  DefaultValues,
+  FieldValues,
+  Path,
+  SubmitHandler,
+  useForm,
+} from "react-hook-form";
+import { toast } from "sonner";
+import { z, ZodType } from "zod";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -11,19 +23,6 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import ROUTES from "@/constants/routes";
-import { zodResolver } from "@hookform/resolvers/zod";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import {
-  DefaultValues,
-  FieldValues,
-  Path,
-  SubmitHandler,
-  useForm
-} from "react-hook-form";
-import { toast } from "sonner";
-import { z, ZodType } from "zod";
-
 
 interface AuthFormProps<T extends FieldValues> {
   schema: ZodType<T>;
@@ -39,8 +38,8 @@ const AuthForm = <T extends FieldValues>({
   onSubmit,
 }: AuthFormProps<T>) => {
   const router = useRouter();
-  
-    const form = useForm<z.infer<typeof schema>>({
+
+  const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
     defaultValues: defaultValues as DefaultValues<T>,
   });
@@ -49,12 +48,10 @@ const AuthForm = <T extends FieldValues>({
     const result = (await onSubmit(data)) as ActionResponse;
     if (result?.success) {
       toast.success(
-        formType === "SIGN_IN"
-          ? "Has iniciado sesión!"
-          : "Te has registrado!"
+        formType === "SIGN_IN" ? "Has iniciado sesión!" : "Te has registrado!"
       );
       router.push(ROUTES.HOME);
-    }else{
+    } else {
       toast.error(
         result?.error?.message ||
           `Ocurrió un error al procesar tu solicitud. Por favor, intenta nuevamente. Error: ${result?.status}`
@@ -66,7 +63,10 @@ const AuthForm = <T extends FieldValues>({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="mt-10 space-y-6">
+      <form
+        onSubmit={form.handleSubmit(handleSubmit)}
+        className="mt-10 space-y-6"
+      >
         {Object.keys(defaultValues).map((key) => (
           <FormField
             key={key}
@@ -98,27 +98,34 @@ const AuthForm = <T extends FieldValues>({
           disabled={form.formState.isSubmitting}
           className="primary-gradient w-full paragraph-medium min-h-12 rounded-2 px-4 py-3 font-inter !text-light-900"
         >
-          {
-            form.formState.isSubmitting
-              ? buttonText === "Iniciar Sesion"
-              ? "Iniciando Sesión..." : "Registrandose..." 
-              : buttonText
-          }
+          {form.formState.isSubmitting
+            ? buttonText === "Iniciar Sesion"
+              ? "Iniciando Sesión..."
+              : "Registrandose..."
+            : buttonText}
         </Button>
 
-
-          {
-            formType === "SIGN_IN" ? (
-              <p>
-                No tenes una cuenta?{" "} <Link href={ROUTES.SIGN_UP} className="paragraph-semibold primary-text-gradient">Registrate</Link>
-              </p>
-            ) : (
-              <p>
-                Ya tenes una cuenta?{" "} <Link href={ROUTES.SIGN_IN} className="paragraph-semibold primary-text-gradient">Inicia Sesion</Link>
-              </p>
-            )
-          }
-        
+        {formType === "SIGN_IN" ? (
+          <p>
+            No tenes una cuenta?{" "}
+            <Link
+              href={ROUTES.SIGN_UP}
+              className="paragraph-semibold primary-text-gradient"
+            >
+              Registrate
+            </Link>
+          </p>
+        ) : (
+          <p>
+            Ya tenes una cuenta?{" "}
+            <Link
+              href={ROUTES.SIGN_IN}
+              className="paragraph-semibold primary-text-gradient"
+            >
+              Inicia Sesion
+            </Link>
+          </p>
+        )}
       </form>
     </Form>
   );
