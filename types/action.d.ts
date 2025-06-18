@@ -122,3 +122,13 @@ interface ReccommendationParams {
   skip: number;
   query?: string;
 }
+
+interface JobFilterParams {
+  query: string;
+  page: string;
+}
+
+interface GloablSearchParams{
+  query: string;
+  type: string | null;
+}

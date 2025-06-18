@@ -1,7 +1,7 @@
-import { BADGE_CRITERIA } from "@/constants";
-import { techMap } from "@/constants/techMap";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { BADGE_CRITERIA } from "@/constants";
+import { techMap } from "@/constants/techMap";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -135,3 +135,27 @@ export function assignBadges(params: {
 
   return badgeCounts;
 }
+
+export function processJobTitle(title: string | undefined | null): string {
+  if (title === undefined || title === null) {
+    return "No Job Title";
+  }
+
+  const words = title.split(" ");
+  const validWords = words.filter((word) => {
+    return (
+      word !== undefined &&
+      word !== null &&
+      word.toLowerCase() !== "undefined" &&
+      word.toLowerCase() !== "null"
+    );
+  });
+
+  if (validWords.length === 0) {
+    return "No Job Title";
+  }
+  const processedTitle = validWords.join(" ");
+  return processedTitle;
+}
+
+

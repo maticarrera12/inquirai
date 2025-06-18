@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
-import { ThemeProvider } from "next-themes";
-import { Toaster } from "@/components/ui/sonner";
 import { SessionProvider } from "next-auth/react";
-import { auth } from "@/auth";
+import { ThemeProvider } from "next-themes";
+import { NuqsAdapter } from "nuqs/adapters/next/app";
 import { ReactNode } from "react";
-import { NuqsAdapter } from 'nuqs/adapters/next/app'
+import { auth } from "@/auth";
+import { Toaster } from "@/components/ui/sonner";
 const inter = localFont({
   src: "./fonts/InterVF.ttf",
   variable: "--font-inter",
@@ -22,6 +22,65 @@ export const metadata: Metadata = {
   title: "InquirAI",
   description:
     "Una plataforma impulsada por la comunidad para formular y responder preguntas de programación. Obtén ayuda, comparte conocimientos y colabora con desarrolladores de todo el mundo. Explora temas como desarrollo web, desarrollo de aplicaciones móviles, algoritmos, estructuras de datos y mucho más.",
+    generator: "Next.js",
+  applicationName: "InquirAI",
+  referrer: "origin-when-cross-origin",
+
+  keywords: [
+    "InquirAI",
+    "programming questions",
+    "developer Q&A",
+    "web development",
+    "JavaScript",
+    "React",
+    "Node.js",
+    "algorithms",
+    "data structures",
+    "developer community",
+  ],
+
+  authors: [
+    { name: "matias Carrera" },
+    { name: "Matias Carrera", url: "https://matiascarrera.dev" },
+  ],
+  creator: "Matias Carrera",
+  publisher: "InquirAI",
+
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
+
+  robots: {
+    index: true,
+    follow: true,
+    nocache: false,
+    googleBot: {
+      index: true,
+      follow: true,
+      noimageindex: false,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+
+  icons: {
+    icon: "/images/site-logo.svg", // regular favicon
+    shortcut: "/favicon.ico", // browser address bar icon
+    apple: "/apple-touch-icon.png", // Apple devices
+    other: [
+      {
+        rel: "mask-icon",
+        url: "/safari-pinned-tab.svg",
+        color: "#5bbad5",
+      },
+    ],
+  },
+
+  // Optional: Theme color for browser UI and mobile experience
+  themeColor: "#18181b",
 };
 
 const RootLayout = async ({ children }: { children: ReactNode }) => {
@@ -46,7 +105,7 @@ const RootLayout = async ({ children }: { children: ReactNode }) => {
             enableSystem
             disableTransitionOnChange
           >
-           <NuqsAdapter>{children}</NuqsAdapter>
+            <NuqsAdapter>{children}</NuqsAdapter>
           </ThemeProvider>
           <Toaster />
         </body>

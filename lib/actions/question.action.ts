@@ -30,6 +30,7 @@ import {
   PaginatedSearchParamsSchema,
 } from "../validations";
 import { createInteraction } from "./interaction.action";
+import { cache } from "react";
 
 export async function createQuestion(
   params: CreateQuestionParams
@@ -217,13 +218,12 @@ export async function editQuestion(
   }
 }
 
-export async function getQuestion(
+export const getQuestion = cache(async function getQuestion(
   params: GetQuestionParams
 ): Promise<ActionResponse<Question>> {
   const validationResult = await action({
     params,
     schema: GetQuestionSchema,
-    authorize: true,
   });
 
   if (validationResult instanceof Error) {
@@ -234,17 +234,16 @@ export async function getQuestion(
 
   try {
     const question = await Question.findById(questionId)
-      .populate("tags")
+      .populate("tags", "_id name")
       .populate("author", "_id name image");
 
-    if (!question) {
-      throw new Error("Pregunta no encontrada");
-    }
+    if (!question) throw new Error("Question not found");
+
     return { success: true, data: JSON.parse(JSON.stringify(question)) };
   } catch (error) {
     return handleError(error) as ErrorResponse;
   }
-}
+});
 
 export async function getRecommendedQuestions({
   userId,

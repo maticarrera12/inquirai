@@ -31,3 +31,10 @@ export const UserFilters = [
     { name: "Más antiguo", value: "oldest" },
     { name: "Popular", value: "popular" },
 ];
+
+export const GlobalSearchFilters = [
+    { name: "Pregunta", value: "question" },
+    { name: "Respuesta", value: "answer" },
+    { name: "Usuario", value: "user" },
+    { name: "Tags", value: "tag" },
+]
