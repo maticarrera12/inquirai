@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ReloadIcon } from "@radix-ui/react-icons";
@@ -10,8 +10,9 @@ import { z } from "zod";
 import ROUTES from "@/constants/routes";
 import { updateUser } from "@/lib/actions/user.action";
 import { ProfileSchema } from "@/lib/validations";
+import { Button } from "../ui/button";
 import {
-    Form,
+  Form,
   FormField,
   FormItem,
   FormLabel,
@@ -20,7 +21,6 @@ import {
 } from "../ui/form";
 import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
-import { Button } from "../ui/button";
 
 interface Params {
   user: User;
