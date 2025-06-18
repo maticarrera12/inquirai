@@ -13,6 +13,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { deleteAnswer } from "@/lib/actions/answer.action";
+import { deleteQuestion } from "@/lib/actions/question.action";
 interface Props {
   type: string;
   itemId: string;
@@ -20,22 +22,26 @@ interface Props {
 const EditDeleteAction = ({ type, itemId }: Props) => {
   const router = useRouter();
 
-  const handleEdit = () => {
+  const handleEdit = async () => {
     router.push(`/questions/${itemId}/edit`);
   };
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (type === "Question") {
+      await deleteQuestion({ questionId: itemId });
       toast.success("Pregunta eliminada correctamente", {
         description: "La pregunta ha sido eliminada con éxito.",
       });
     } else if (type === "Answer") {
+      await deleteAnswer({ answerId: itemId });
       toast.success("Respuesta eliminada correctamente", {
         description: "La respuesta ha sido eliminada con éxito.",
       });
     }
   };
   return (
-    <div className={`flex items-center justify-end gap-3 max-sm:w-full ${type === "Answer" && "gap-0 justify-center"}`}>
+    <div
+      className={`flex items-center justify-end gap-3 max-sm:w-full ${type === "Answer" && "gap-0 justify-center"}`}
+    >
       {type === "Question" && (
         <Image
           src="/icons/edit.svg"

@@ -1,9 +1,10 @@
+import { BADGE_CRITERIA } from "@/constants";
 import { techMap } from "@/constants/techMap";
-import { clsx, type ClassValue } from "clsx"
-import { twMerge } from "tailwind-merge"
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
+  return twMerge(clsx(inputs));
 }
 
 export const techDescriptionMap: { [key: string]: string } = {
@@ -19,12 +20,10 @@ export const techDescriptionMap: { [key: string]: string } = {
     "Node.js permite ejecutar JavaScript en el servidor, creando aplicaciones de red rápidas y escalables.",
   python:
     "Python es un lenguaje versátil conocido por su legibilidad y gran ecosistema, usado en ciencia de datos y automatización.",
-  java:
-    "Java es un lenguaje orientado a objetos, común en aplicaciones empresariales y desarrollo Android.",
+  java: "Java es un lenguaje orientado a objetos, común en aplicaciones empresariales y desarrollo Android.",
   cplusplus:
     "C++ es un lenguaje de alto rendimiento, adecuado para software de sistemas, motores de juegos y aplicaciones complejas.",
-  git:
-    "Git es un sistema de control de versiones que rastrea cambios en el código fuente durante el desarrollo.",
+  git: "Git es un sistema de control de versiones que rastrea cambios en el código fuente durante el desarrollo.",
   docker:
     "Docker es una plataforma de contenedores que simplifica el despliegue y la gestión de entornos de aplicaciones.",
   mongodb:
@@ -33,8 +32,7 @@ export const techDescriptionMap: { [key: string]: string } = {
     "MySQL es una base de datos relacional popular, conocida por su fiabilidad y facilidad de uso.",
   postgresql:
     "PostgreSQL es una base de datos relacional de código abierto, robusta y con funciones avanzadas.",
-  aws:
-    "AWS es una plataforma de nube integral que ofrece una amplia gama de servicios para despliegue, almacenamiento y más.",
+  aws: "AWS es una plataforma de nube integral que ofrece una amplia gama de servicios para despliegue, almacenamiento y más.",
 };
 
 export const getTechDescription = (techName: string) => {
@@ -80,13 +78,13 @@ export const getTimeStamp = (createdAt: Date): string => {
 
 export const formatNumber = (number: number): string => {
   if (number >= 100000) {
-    return (number / 1000000).toFixed(1) + "M"; 
-  }    else if (number >= 1000) {
+    return (number / 1000000).toFixed(1) + "M";
+  } else if (number >= 1000) {
     return (number / 1000).toFixed(1) + "K";
-} else{
-  return number.toString();
-}
-}
+  } else {
+    return number.toString();
+  }
+};
 // export const getTimeStamp = (date: Date) => {
 //   const now = new Date();
 //   const secondsAgo = Math.floor((now.getTime() - date.getTime()) / 1000);
@@ -110,3 +108,30 @@ export const formatNumber = (number: number): string => {
 //   return "just now";
 // };
 
+export function assignBadges(params: {
+  criteria: {
+    type: keyof typeof BADGE_CRITERIA;
+    count: number;
+  }[];
+}) {
+  const badgeCounts: Badges = {
+    GOLD: 0,
+    SILVER: 0,
+    BRONZE: 0,
+  };
+
+  const { criteria } = params;
+
+  criteria.forEach((item) => {
+    const { type, count } = item;
+    const badgeLevels = BADGE_CRITERIA[type];
+
+    Object.keys(badgeLevels).forEach((level) => {
+      if (count >= badgeLevels[level as keyof typeof badgeLevels]) {
+        badgeCounts[level as keyof Badges] += 1;
+      }
+    });
+  });
+
+  return badgeCounts;
+}

@@ -1,24 +1,35 @@
 "use server";
 
-import mongoose, { FilterQuery } from "mongoose";
-
-import Question, { IQuestion, IQuestionDoc } from "@/database/question.model";
+import mongoose, { FilterQuery, Types } from "mongoose";
+import { revalidatePath } from "next/cache";
+import { after } from "next/server";
+import { auth } from "@/auth";
+import ROUTES from "@/constants/routes";
+import { Answer, Collection, Interaction, Vote } from "@/database";
+import Question, { IQuestionDoc } from "@/database/question.model";
 import TagQuestion from "@/database/tag-question.model";
 import Tag, { ITagDoc } from "@/database/tag.model";
-
+import {
+  CreateQuestionParams,
+  EditQuestionParams,
+  GetQuestionParams,
+  IncrementViewsParams,
+  DeleteQuestionParams,
+  ReccommendationParams,
+} from "@/types/action";
 import action from "../handlers/action";
 import handleError from "../handlers/error";
+import { UnauthorizedError } from "../http-errors";
+import dbConnect from "../mongoose";
 import {
   AskQuestionSchema,
+  DeleteQuestionSchema,
   EditQuestionSchema,
   GetQuestionSchema,
   IncrementViewsSchema,
   PaginatedSearchParamsSchema,
 } from "../validations";
-import { UnauthorizedError } from "../http-errors";
-import ROUTES from "@/constants/routes";
-import { revalidatePath } from "next/cache";
-import dbConnect from "../mongoose";
+import { createInteraction } from "./interaction.action";
 
 export async function createQuestion(
   params: CreateQuestionParams
@@ -74,6 +85,15 @@ export async function createQuestion(
       { session }
     );
 
+    after(async () => {
+      await createInteraction({
+        action: "post",
+        actionId: question._id.toString(),
+        actionTarget: "question",
+        authorId: userId as string,
+      });
+    });
+
     await session.commitTransaction();
 
     return { success: true, data: JSON.parse(JSON.stringify(question)) };
@@ -122,10 +142,14 @@ export async function editQuestion(
     }
 
     const tagsToAdd = tags.filter(
-      (tag) => !question.tags.some((t: ITagDoc) => t.name.toLowerCase().includes(tag.toLowerCase()))
+      (tag) =>
+        !question.tags.some((t: ITagDoc) =>
+          t.name.toLowerCase().includes(tag.toLowerCase())
+        )
     );
     const tagsToRemove = question.tags.filter(
-      (tag: ITagDoc)=> !tags.some((t)=> t.toLowerCase() === tag.name.toLowerCase())
+      (tag: ITagDoc) =>
+        !tags.some((t) => t.toLowerCase() === tag.name.toLowerCase())
     );
 
     const newTagDocuments = [];
@@ -133,7 +157,7 @@ export async function editQuestion(
     if (tagsToAdd.length > 0) {
       for (const tag of tagsToAdd) {
         const existingTag = await Tag.findOneAndUpdate(
-          { name: { $regex:  `^${tag}$`, $options: "i" } },
+          { name: { $regex: `^${tag}$`, $options: "i" } },
           { $setOnInsert: { name: tag }, $inc: { questions: 1 } },
           { upsert: true, new: true, session }
         );
@@ -170,7 +194,10 @@ export async function editQuestion(
       );
 
       question.tags = question.tags.filter(
-        (tag: mongoose.Types.ObjectId) => !tagIdsToRemove.some((id: mongoose.Types.ObjectId) => id.equals(tag._id))
+        (tag: mongoose.Types.ObjectId) =>
+          !tagIdsToRemove.some((id: mongoose.Types.ObjectId) =>
+            id.equals(tag._id)
+          )
       );
     }
 
@@ -206,7 +233,9 @@ export async function getQuestion(
   const { questionId } = validationResult.params!;
 
   try {
-    const question = await Question.findById(questionId).populate("tags").populate('author', "_id name image");
+    const question = await Question.findById(questionId)
+      .populate("tags")
+      .populate("author", "_id name image");
 
     if (!question) {
       throw new Error("Pregunta no encontrada");
@@ -215,6 +244,59 @@ export async function getQuestion(
   } catch (error) {
     return handleError(error) as ErrorResponse;
   }
+}
+
+export async function getRecommendedQuestions({
+  userId,
+  query,
+  skip,
+  limit,
+}: ReccommendationParams) {
+  const interactions = await Interaction.find({
+    user: new mongoose.Types.ObjectId(userId),
+    actionType: "question",
+    action: { $in: ["view", "upvote", "bookmark", "post"] },
+  })
+    .sort({ createdAt: -1 })
+    .limit(50)
+    .lean();
+
+  const interactedQuestionIds = interactions.map((i) => i.actionId);
+  const interactedQuestions = await Question.find({
+    _id: { $in: interactedQuestionIds },
+  }).select("tags");
+  const allTags = interactedQuestions.flatMap((q) =>
+    q.tags.map((tag: Types.ObjectId) => tag.toString())
+  );
+
+  const uniqueIds = [...new Set(allTags)];
+  const recommedendedQuery: FilterQuery<typeof Question> = {
+    _id: { $nin: interactedQuestionIds },
+    author: { $ne: new Types.ObjectId(userId) },
+    tags: { $in: uniqueIds.map((id: string) => new Types.ObjectId(id)) },
+  };
+  if (query) {
+    recommedendedQuery.$or = [
+      { title: { $regex: query, $options: "i" } },
+      { content: { $regex: query, $options: "i" } },
+    ];
+  }
+
+  const total = await Question.countDocuments(recommedendedQuery);
+
+  const questions = await Question.find(recommedendedQuery)
+    .populate("tags", "name")
+    .populate("author", "name image")
+    .sort({ upvotes: -1, views: -1 })
+    .skip(skip)
+    .limit(limit)
+    .limit(limit)
+    .lean();
+
+  return {
+    questions: JSON.parse(JSON.stringify(questions)),
+    isNext: total > skip + questions.length,
+  };
 }
 
 export async function getQuestions(
@@ -234,7 +316,21 @@ export async function getQuestions(
 
   const filterQuery: FilterQuery<typeof Question> = {};
   if (filter === "recommended") {
-    return { success: true, data: { questions: [], isNext: false } };
+    const session = await auth();
+    const userId = session?.user?.id;
+
+    if (!userId) {
+      return { success: true, data: { questions: [], isNext: false } };
+    }
+
+    const recommended = await getRecommendedQuestions({
+      userId,
+      query,
+      skip,
+      limit,
+    });
+
+    return { success: true, data: recommended };
   }
   if (query) {
     filterQuery.$or = [
@@ -243,18 +339,18 @@ export async function getQuestions(
     ];
   }
 
-  let sortCriteria = {}
+  let sortCriteria = {};
 
   switch (filter) {
     case "newest":
       sortCriteria = { createdAt: -1 };
-      break
-    case 'unanswered':
+      break;
+    case "unanswered":
       filterQuery.answers = 0;
       sortCriteria = { createdAt: -1 };
       break;
-    case 'popular':
-      sortCriteria = { upvotes: -1};
+    case "popular":
+      sortCriteria = { upvotes: -1 };
       break;
     default:
       sortCriteria = { createdAt: -1 };
@@ -270,7 +366,7 @@ export async function getQuestions(
       .sort(sortCriteria)
       .skip(skip)
       .limit(limit);
-    
+
     const isNext = totalQuestions > skip + questions.length;
 
     return {
@@ -278,7 +374,7 @@ export async function getQuestions(
       data: {
         questions: JSON.parse(JSON.stringify(questions)),
         isNext,
-      }
+      },
     };
   } catch (error) {
     return handleError(error) as ErrorResponse;
@@ -321,19 +417,95 @@ export async function incrementViews(
   }
 }
 
-export async function getHotQuestions():Promise<ActionResponse<Question[]>>{
+export async function getHotQuestions(): Promise<ActionResponse<Question[]>> {
   try {
-    await dbConnect()
+    await dbConnect();
 
     const questions = await Question.find()
-    .sort({views: -1, upvotes: -1})
-    .limit(5)
+      .sort({ views: -1, upvotes: -1 })
+      .limit(5);
 
-    return{
+    return {
       success: true,
-      data: JSON.parse(JSON.stringify(questions))
-    }
+      data: JSON.parse(JSON.stringify(questions)),
+    };
   } catch (error) {
+    return handleError(error) as ErrorResponse;
+  }
+}
+
+export async function deleteQuestion(
+  params: DeleteQuestionParams
+): Promise<ActionResponse> {
+  const validationResult = await action({
+    params,
+    schema: DeleteQuestionSchema,
+    authorize: true,
+  });
+  if (validationResult instanceof Error) {
+    return handleError(validationResult) as ErrorResponse;
+  }
+  const { questionId } = validationResult.params!;
+  const { user } = validationResult.session!;
+
+  const session = await mongoose.startSession();
+  try {
+    session.startTransaction();
+    const question = await Question.findById(questionId).session(session);
+
+    if (!question) {
+      throw new Error("Pregunta no encontrada");
+    }
+
+    if (question.author.toString() !== user?.id) {
+      throw new UnauthorizedError("Desautorizado para eliminar esta pregunta");
+    }
+
+    await Collection.deleteMany({
+      question: questionId,
+    }).session(session);
+
+    await TagQuestion.deleteMany({
+      question: questionId,
+    }).session(session);
+
+    if (question.tags.length > 0) {
+      await Tag.updateMany(
+        { _id: { $in: question.tags } },
+        { $inc: { questions: -1 } },
+        { session }
+      );
+    }
+
+    await Vote.deleteMany({
+      accionId: questionId,
+      actionType: "question",
+    }).session(session);
+
+    const answers = await Answer.find({ question: questionId }).session(
+      session
+    );
+
+    if (answers.length > 0) {
+      await Answer.deleteMany({
+        question: questionId,
+      }).session(session);
+      await Vote.deleteMany({
+        accionId: { $in: answers.map((answer) => answer._id) },
+        actionType: "answer",
+      }).session(session);
+    }
+
+    await Question.findByIdAndDelete(questionId).session(session);
+
+    await session.commitTransaction();
+    session.endSession();
+    revalidatePath(`/profile/${user?.id}`);
+
+    return { success: true };
+  } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
     return handleError(error) as ErrorResponse;
   }
 }

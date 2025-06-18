@@ -1,12 +1,13 @@
 "use server";
-import action from "../handlers/action";
-import { SignInSchema, SignUpSchema } from "@/lib/validations";
-import handleError from "../handlers/error";
-import mongoose from "mongoose";
-import User from "@/database/user.model";
 import bcrypt from "bcryptjs";
-import Account from "@/database/account.model";
+import mongoose from "mongoose";
 import { signIn } from "@/auth";
+import Account from "@/database/account.model";
+import User from "@/database/user.model";
+import { SignInSchema, SignUpSchema } from "@/lib/validations";
+import { AuthCredentials } from "@/types/action";
+import action from "../handlers/action";
+import handleError from "../handlers/error";
 import { NotFoundError } from "../http-errors";
 
 export async function signUpWithCredentials(

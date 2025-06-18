@@ -1,4 +1,5 @@
-
+import mongoose from "mongoose";
+import { IInteractionDoc } from "@/database/interaction.model";
 
 interface SignInWithOAuthParams {
   provider: "github" | "google";
@@ -27,11 +28,11 @@ interface CreateQuestionParams {
 interface EditQuestionParams extends CreateQuestionParams {
   questionId: string;
 }
-interface GetQuestionParams{
-    questionId: string;
+interface GetQuestionParams {
+  questionId: string;
 }
 
-interface GetTagQuestionsParams extends Omit<PaginatedSearchParams, 'filter'> {
+interface GetTagQuestionsParams extends Omit<PaginatedSearchParams, "filter"> {
   tagId: string;
 }
 
@@ -39,7 +40,7 @@ interface IncrementViewsParams {
   questionId: string;
 }
 
-interface createAnswerParams{
+interface createAnswerParams {
   questionId: string;
   content: string;
 }
@@ -48,7 +49,7 @@ interface GetAnswersParams extends PaginatedSearchParams {
   questionId: string;
 }
 
-interface CreateVoteParams{
+interface CreateVoteParams {
   targetId: string;
   targetType: "question" | "answer";
   voteType: "upvote" | "downvote";
@@ -57,22 +58,23 @@ interface UpdateVoteCountParams extends CreateVoteParams {
   change: 1 | -1;
 }
 
-type HasVotedParams = Pick<CreateVoteParams, 'targetId' | 'targetType'>
+type HasVotedParams = Pick<CreateVoteParams, "targetId" | "targetType">;
 
 interface HasVotedResponse {
   hasUpvoted: boolean;
   hasDownvoted: boolean;
 }
 
-interface CollectionBaseParams{
+interface CollectionBaseParams {
   questionId: string;
 }
 
-interface getUserParams{
+interface GetUserParams {
   userId: string;
 }
 
-interface GetUserQuestionsParams extends Omit<PaginatedSearchParams, "query" | "filter" | "sort"> {
+interface GetUserQuestionsParams
+  extends Omit<PaginatedSearchParams, "query" | "filter" | "sort"> {
   userId: string;
 }
 
@@ -81,5 +83,42 @@ interface GetUserAnswersParams extends PaginatedSearchParams {
 }
 
 interface GetUserTagsParams {
-  userId: string; 
+  userId: string;
+}
+
+interface DeleteQuestionParams {
+  questionId: string;
+}
+
+interface DeleteAnswerParams {
+  answerId: string;
+}
+
+interface CreateInteractionParams {
+  action:
+    | "view"
+    | "upvote"
+    | "downvote"
+    | "bookmark"
+    | "post"
+    | "edit"
+    | "delete"
+    | "search";
+  actionId: string;
+  authorId: string;
+  actionTarget: "question" | "answer";
+}
+
+interface UpdateReputationParams {
+  interaction: IInteractionDoc;
+  session: mongoose.ClientSession;
+  performerId: string;
+  authorId: string;
+}
+
+interface ReccommendationParams {
+  userId: string;
+  limit: number;
+  skip: number;
+  query?: string;
 }

@@ -6,8 +6,10 @@ import { cn } from "@/lib/utils";
 import { Button } from "../ui/button";
 
 const filters = [
-  { name: "React", value: "react" },
-  { name: "JavaScript", value: "javascript" },
+  {name:"Mas nuevo", value: "newest"},
+  {name:"Popular", value: "popular"},
+  {name:"Sin respuesta", value: "unanswered"},
+  {name: "Recomendado", value: "recommended"},
 ];
 
 const HomeFilter = () => {

@@ -17,13 +17,12 @@ import {
   getUser,
   getUserAnswers,
   getUserQuestions,
+  getUserStats,
   getUserTags,
 } from "@/lib/actions/user.action";
 
 const Profile = async ({ params, searchParams }: RouteParams) => {
-  // /12312313
   const { id } = await params;
-  // ?id=1&page=1&pageSize=10
   const { page, pageSize } = await searchParams;
 
   if (!id) notFound();
@@ -40,7 +39,10 @@ const Profile = async ({ params, searchParams }: RouteParams) => {
       </div>
     );
 
-  const { user, totalQuestions, totalAnswers } = data!;
+  const { user } = data!;
+  const { data: userStats } = await getUserStats({
+    userId: id,
+  });
 
   const {
     success: userQuestionsSuccess,
@@ -131,13 +133,10 @@ const Profile = async ({ params, searchParams }: RouteParams) => {
       </section>
 
       <Stats
-        totalQuestions={totalQuestions}
-        totalAnswers={totalAnswers}
-        badges={{
-          GOLD: 0,
-          SILVER: 0,
-          BRONZE: 0,
-        }}
+        totalQuestions={userStats?.totalQuestions || 0}
+        totalAnswers={userStats?.totalAnswers || 0}
+        badges={userStats?.badges || { GOLD: 0, SILVER: 0, BRONZE: 0 }}
+        reputationPoints={user.reputation || 0}
       />
 
       <section className="mt-10 flex gap-10">
@@ -162,10 +161,13 @@ const Profile = async ({ params, searchParams }: RouteParams) => {
               render={(questions) => (
                 <div className="flex w-full flex-col gap-6">
                   {questions.map((question) => (
-                    <QuestionCard 
-                    showActionBtns={loggedInUser?.user?.id === question.author._id} 
-                    key={question._id} 
-                    question={question} />
+                    <QuestionCard
+                      showActionBtns={
+                        loggedInUser?.user?.id === question.author._id
+                      }
+                      key={question._id}
+                      question={question}
+                    />
                   ))}
                 </div>
               )}
@@ -189,7 +191,9 @@ const Profile = async ({ params, searchParams }: RouteParams) => {
                       content={answer.content.slice(0, 27)}
                       containerClasses="card-wrapper rounded-[10px] px-7 py-9 sm:px-11"
                       showReadMore
-                      showActionBtns={loggedInUser?.user?.id === answer.author._id} 
+                      showActionBtns={
+                        loggedInUser?.user?.id === answer.author._id
+                      }
                     />
                   ))}
                 </div>

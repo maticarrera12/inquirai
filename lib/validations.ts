@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { InteractionActionEnums } from "@/database/interaction.model";
 
 export const SignInSchema = z.object({
   email: z
@@ -79,11 +80,15 @@ export const AskQuestionSchema = z.object({
 });
 
 export const EditQuestionSchema = AskQuestionSchema.extend({
-  questionId: z.string().min(1, { message: "El ID de la pregunta es requerido." }),
+  questionId: z
+    .string()
+    .min(1, { message: "El ID de la pregunta es requerido." }),
 });
 
 export const GetQuestionSchema = z.object({
-  questionId: z.string().min(1, { message: "El ID de la pregunta es requerido." }),
+  questionId: z
+    .string()
+    .min(1, { message: "El ID de la pregunta es requerido." }),
 });
 
 export const UserSchema = z.object({
@@ -142,11 +147,9 @@ export const SignInWithOAuthSchema = z.object({
     .min(1, { message: "El ID de la cuenta del proveedor es requerido." }),
   user: z.object({
     name: z.string().min(1, { message: "El nombre es requerido." }),
-    username: z
-      .string()
-      .min(3, {
-        message: "El nombre de usuario debe tener al menos 3 caracteres.",
-      }),
+    username: z.string().min(3, {
+      message: "El nombre de usuario debe tener al menos 3 caracteres.",
+    }),
     email: z
       .string()
       .email({ message: "Por favor, ingresa una dirección de correo válida." }),
@@ -170,50 +173,66 @@ export const GetTagQuestionsSchema = PaginatedSearchParamsSchema.extend({
 });
 
 export const IncrementViewsSchema = z.object({
-  questionId: z.string().min(1, { message: "El ID de la pregunta es requerido." }),
+  questionId: z
+    .string()
+    .min(1, { message: "El ID de la pregunta es requerido." }),
 });
 
 export const AnswerSchema = z.object({
   content: z
-  .string()
-  .min(20, {message: "Las respuestas deben tener mas de 20 caracteres."})
-})
+    .string()
+    .min(20, { message: "Las respuestas deben tener mas de 20 caracteres." }),
+});
 
 export const AnswerServerSchema = AnswerSchema.extend({
-  questionId: z.string().min(1, { message: "El ID de la pregunta es requerido." }),
+  questionId: z
+    .string()
+    .min(1, { message: "El ID de la pregunta es requerido." }),
 });
 export const GetAnswersSchema = PaginatedSearchParamsSchema.extend({
-  questionId: z.string().min(1, { message: "El ID de la pregunta es requerido." }),
+  questionId: z
+    .string()
+    .min(1, { message: "El ID de la pregunta es requerido." }),
 });
 
 export const AIAnswerSchema = z.object({
   question: z
-  .string()
-  .min(5, { message: "La pregunta es requerida." })
-  .max(130, { message: "La pregunta no puede exceder los 130 caracteres." }),  
-  content: z.string().min(100, { message: "La respuesta debe tener mas de 100 caracteres." }),
-  userAnswer: z.string()
-  .min(20, { message: "La respuesta del usuario debe tener mas de 20 caracteres." })
-})
+    .string()
+    .min(5, { message: "La pregunta es requerida." })
+    .max(130, { message: "La pregunta no puede exceder los 130 caracteres." }),
+  content: z
+    .string()
+    .min(100, { message: "La respuesta debe tener mas de 100 caracteres." }),
+  userAnswer: z
+    .string()
+    .min(20, {
+      message: "La respuesta del usuario debe tener mas de 20 caracteres.",
+    }),
+});
 
 export const CreateVoteSchema = z.object({
   targetId: z.string().min(1, { message: "El ID del objetivo es requerido." }),
-  targetType: z.enum(["question", "answer"], {message: "El tipo de objetivo es requerido."}),
-  voteType: z.enum(["upvote", "downvote"], { message: "El tipo de voto es requerido." }),
+  targetType: z.enum(["question", "answer"], {
+    message: "El tipo de objetivo es requerido.",
+  }),
+  voteType: z.enum(["upvote", "downvote"], {
+    message: "El tipo de voto es requerido.",
+  }),
 });
 
 export const UpdateVoteCountSchema = CreateVoteSchema.extend({
-  change: z.number().int().min(-1).max(1)
+  change: z.number().int().min(-1).max(1),
 });
 
 export const HasVotedSchema = CreateVoteSchema.pick({
   targetId: true,
   targetType: true,
-  
-})
+});
 
 export const CollectionBaseSchema = z.object({
-  questionId: z.string().min(1, { message: "El ID de la pregunta es requerido." }),
+  questionId: z
+    .string()
+    .min(1, { message: "El ID de la pregunta es requerido." }),
 });
 
 export const GetUserSchema = z.object({
@@ -224,11 +243,29 @@ export const GetUserQuestionSchema = PaginatedSearchParamsSchema.extend({
   userId: z.string().min(1, { message: "El ID del usuario es requerido." }),
 });
 
-
 export const GetUserAnswersSchema = PaginatedSearchParamsSchema.extend({
   userId: z.string().min(1, { message: "El ID del usuario es requerido." }),
 });
 
 export const GetUserTagsSchema = z.object({
   userId: z.string().min(1, { message: "El ID del usuario es requerido." }),
+});
+
+export const DeleteQuestionSchema = z.object({
+  questionId: z
+    .string()
+    .min(1, { message: "El ID de la pregunta es requerido." }),
+});
+
+export const DeleteAnswerSchema = z.object({
+  answerId: z
+    .string()
+    .min(1, { message: "El ID de la respuesta es requerido." }),
+});
+
+export const CreateInteractionSchema = z.object({
+  action: z.enum(InteractionActionEnums),
+  actionTarget: z.enum(["question", "answer"]),
+  actionId: z.string().min(1),
+  authorId: z.string().min(1),
 });

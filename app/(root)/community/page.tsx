@@ -22,7 +22,7 @@ const Community = async ({ searchParams }: RouteParams) => {
 
   return (
     <div>
-      <h1 className="h1-bold text-dark100_light900">Todos los usuarios</h1>
+      <h1 className="h1-bold text-dark100_light900">Comunidad</h1>
 
       <div className="mt-11 flex justify-between gap-5 max-sm:flex-col sm:items-center">
         <LocalSearch
