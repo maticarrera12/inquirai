@@ -9,7 +9,7 @@ const compat = new FlatCompat({
   baseDirectory: __dirname,
 });
 
-export default [
+const config = [
   {
     ignores: ["components/ui/**/*"],
   },
@@ -17,12 +17,9 @@ export default [
     "next/core-web-vitals",
     "next",
     "prettier"
-    // NO USAR: "standard"
-    // NO USAR: "plugin:tailwindcss/recommended" (incompatible con Tailwind 4.x)
   ),
   {
     rules: {
-      // Import order si querés mantenerlo:
       "import/order": [
         "error",
         {
@@ -59,3 +56,5 @@ export default [
     },
   },
 ];
+
+export default config;
