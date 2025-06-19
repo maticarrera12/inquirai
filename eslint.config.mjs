@@ -1,6 +1,6 @@
-import { dirname } from "path";
-import { fileURLToPath } from "url";
 import { FlatCompat } from "@eslint/eslintrc";
+import { fileURLToPath } from "url";
+import { dirname } from "path";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -10,23 +10,30 @@ const compat = new FlatCompat({
 });
 
 const config = [
-  {
-    ignores: ["components/ui/**/*"],
-  },
   ...compat.extends(
+    "eslint:recommended",
+    "plugin:react/recommended",
+    "plugin:jsx-a11y/recommended",
+    "plugin:@typescript-eslint/recommended",
     "next/core-web-vitals",
-    "next",
     "prettier"
   ),
   {
+    files: ["**/*.ts", "**/*.tsx"],
+    languageOptions: {
+      parser: "@typescript-eslint/parser",
+      parserOptions: {
+        sourceType: "module",
+        ecmaVersion: "latest",
+        ecmaFeatures: {
+          jsx: true,
+        },
+      },
+    },
     rules: {
+      "react/react-in-jsx-scope": "off",
       "import/order": "off",
       "comma-dangle": "off",
-    },
-  },
-  {
-    files: ["**/*.ts", "**/*.tsx"],
-    rules: {
       "no-undef": "off",
     },
   },
