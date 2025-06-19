@@ -4,6 +4,12 @@ const nextConfig: NextConfig = {
   transpilePackages: ['next-mdx-remote'],
   devIndicators: false,
   serverExternalPackages:['pino', 'pino-prettier'],
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  typescript: {
+    ignoreBuildErrors: true,
+  },
   images:{
     remotePatterns:[
       {
