@@ -1,41 +1,72 @@
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
 import { FlatCompat } from "@eslint/eslintrc";
-import { fileURLToPath } from "url";
-import { dirname } from "path";
+import js from "@eslint/js";
 
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
+const __dirname = path.dirname(__filename);
 const compat = new FlatCompat({
   baseDirectory: __dirname,
+  recommendedConfig: js.configs.recommended,
+  allConfig: js.configs.all,
 });
 
 const config = [
+  {
+    ignores: ["components/ui/**/*"],
+  },
   ...compat.extends(
-    "eslint:recommended",
-    "plugin:react/recommended",
-    "plugin:jsx-a11y/recommended",
-    "plugin:@typescript-eslint/recommended",
     "next/core-web-vitals",
+    "next/typescript",
+    "standard",
+    // "plugin:tailwindcss/recommended",
     "prettier"
   ),
   {
-    files: ["**/*.ts", "**/*.tsx"],
-    languageOptions: {
-      parser: "@typescript-eslint/parser",
-      parserOptions: {
-        sourceType: "module",
-        ecmaVersion: "latest",
-        ecmaFeatures: {
-          jsx: true,
-        },
-      },
-    },
     rules: {
-      "react/react-in-jsx-scope": "off",
-      "import/order": "off",
+      "import/order": [
+        "error",
+        {
+          groups: [
+            "builtin",
+            "external",
+            "internal",
+            ["parent", "sibling"],
+            "index",
+            "object",
+          ],
+
+          "newlines-between": "always",
+
+          pathGroups: [
+            {
+              pattern: "@app/**",
+              group: "external",
+              position: "after",
+            },
+          ],
+
+          pathGroupsExcludedImportTypes: ["builtin"],
+
+          alphabetize: {
+            order: "asc",
+            caseInsensitive: true,
+          },
+        },
+      ],
       "comma-dangle": "off",
+    },
+  },
+  {
+    files: ["**/*.ts", "**/*.tsx"],
+
+    rules: {
       "no-undef": "off",
     },
+ignorePatterns:{
+        'components/ui/**'
+    }
   },
 ];
 

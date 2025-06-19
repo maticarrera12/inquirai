@@ -12,18 +12,25 @@ interface Props extends ActionResponse<Answer[]> {
   totalAnswers: number;
 }
 
-const AllAnswers = ({ isNext, page, data, success, error, totalAnswers }: Props) => {
+const AllAnswers = ({
+  isNext,
+  page,
+  data,
+  success,
+  error,
+  totalAnswers,
+}: Props) => {
   return (
     <div className="mt-11">
       <div className="flex items-center justify-between">
         <h3 className="primary-text-gradient">
           {totalAnswers} {totalAnswers === 1 ? "Respuesta" : "Respuestas"}
         </h3>
-        
+
         <CommonFilter
-        filters={AnswerFilters}
-        otherClasses="sm:min-w-32"
-        containerClasses="max-xs:w-full"
+          filters={AnswerFilters}
+          otherClasses="sm:min-w-32"
+          containerClasses="max-xs:w-full"
         />
       </div>
 
@@ -33,13 +40,10 @@ const AllAnswers = ({ isNext, page, data, success, error, totalAnswers }: Props)
         error={error}
         empty={EMPTY_ANSWERS}
         render={(answer) =>
-          answer.map((answer) => <AnswerCard key={answer._id} {...answer}/>)
+          answer.map((answer) => <AnswerCard key={answer._id} {...answer} />)
         }
       />
-      <Pagination
-      page={page}
-      isNext={isNext}
-      />
+      <Pagination page={page} isNext={isNext} />
     </div>
   );
 };
