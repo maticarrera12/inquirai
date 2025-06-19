@@ -48,9 +48,6 @@ const config = [
       ],
       "comma-dangle": "off",
     },
-    ignorePatterns: [
-      "components/ui/**",
-    ]
   },
   {
     files: ["**/*.ts", "**/*.tsx"],
