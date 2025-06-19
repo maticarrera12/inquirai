@@ -14,47 +14,16 @@ const compat = new FlatCompat({
 
 const config = [
   {
-    ignores: ["components/ui/**/*"],
+    ignores: ["components/ui/**/*", ".next/**/*"] ,
   },
   ...compat.extends(
     "next/core-web-vitals",
     "next/typescript",
-    "standard",
-    // "plugin:tailwindcss/recommended",
     "prettier"
   ),
   {
     rules: {
-      "import/order": [
-        "error",
-        {
-          groups: [
-            "builtin",
-            "external",
-            "internal",
-            ["parent", "sibling"],
-            "index",
-            "object",
-          ],
-
-          "newlines-between": "always",
-
-          pathGroups: [
-            {
-              pattern: "@app/**",
-              group: "external",
-              position: "after",
-            },
-          ],
-
-          pathGroupsExcludedImportTypes: ["builtin"],
-
-          alphabetize: {
-            order: "asc",
-            caseInsensitive: true,
-          },
-        },
-      ],
+      "import/order": "off",
       "comma-dangle": "off",
     },
   },
@@ -64,9 +33,7 @@ const config = [
     rules: {
       "no-undef": "off",
     },
-ignorePatterns:{
-        'components/ui/**'
-    }
+    ignores: ['components/ui/**']
   },
 ];
 
