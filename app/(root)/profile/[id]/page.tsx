@@ -141,7 +141,7 @@ const Profile = async ({ params, searchParams }: RouteParams) => {
 
       <section className="mt-10 flex gap-10">
         <Tabs defaultValue="top-posts" className="flex-[2]">
-          <TabsList className="background-light800_dark400 min-h-[42px] p-1">
+          <TabsList className="background-light700_dark400 min-h-[42px] p-1">
             <TabsTrigger value="top-posts" className="tab">
               Posts
             </TabsTrigger>

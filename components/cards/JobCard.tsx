@@ -14,7 +14,7 @@ const JobLocation = ({
   job_state,
 }: JobLocationProps) => {
   return (
-    <div className="background-light800_dark400 flex items-center justify-end gap-2 rounded-2xl px-3 py-1.5">
+    <div className="background-light700_dark400 flex items-center justify-end gap-2 rounded-2xl px-3 py-1.5">
       <Image
         src={`https://flagsapi.com/${job_country}/flat/64.png`}
         alt="country symbol"
@@ -59,7 +59,7 @@ const JobCard = ({ job }: { job: Job }) => {
         {employer_logo ? (
           <Link
             href={employer_website ?? "/jobs"}
-            className="background-light800_dark400 relative size-16 rounded-xl"
+            className="background-light700_dark400 relative size-16 rounded-xl"
           >
             <Image
               src={employer_logo}
