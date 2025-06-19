@@ -20,32 +20,7 @@ const config = [
   ),
   {
     rules: {
-      "import/order": [
-        "error",
-        {
-          groups: [
-            "builtin",
-            "external",
-            "internal",
-            ["parent", "sibling"],
-            "index",
-            "object",
-          ],
-          "newlines-between": "never",
-          pathGroups: [
-            {
-              pattern: "@app/**",
-              group: "external",
-              position: "after",
-            },
-          ],
-          pathGroupsExcludedImportTypes: ["builtin"],
-          alphabetize: {
-            order: "asc",
-            caseInsensitive: true,
-          },
-        },
-      ],
+      "import/order": "off",
       "comma-dangle": "off",
     },
   },
